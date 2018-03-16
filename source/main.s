@@ -12,124 +12,86 @@ main:
 	ldr		r0, =background1
 	mov		r1, #608
 	mov		r2, #133
+	
+	ldr		r4, =width
+	mov		r5, #608
+	str		r5, [r4]
+	
+	ldr		r4,	=height
+	mov		r5, #718
+	str		r5, [r4]
 	bl		DrawImage
-
+	
+	@ draw the paddle
 	ldr		r0, =small_paddle
 	mov		r1, #886
 	mov		r2, #743
-	bl		DrawPaddle
-
-	mov		r5,	#10
-	mov		r6, #632
-block:
-	ldr		r0, =white_block
-	mov		r1, r6
-	mov		r2, #230
-	bl		DrawBlock
-	add		r6, #56
-	subs	r5, #1
-	bne		block
-/////
-
-	mov		r5,	#10
-	mov		r6, #632
-block1:
-	ldr		r0, =yellow_block
-	mov		r1, r6
-	mov		r2, #258
-	bl		DrawBlock
-	add		r6, #56
-	subs	r5, #1
-	bne		block1
-/////
-	mov		r5,	#10
-	mov		r6, #632
-block2:
-	ldr		r0, =pink_block
-	mov		r1, r6
-	mov		r2, #286
-	bl		DrawBlock
-	add		r6, #56
-	subs	r5, #1
-	bne		block2
-
-	mov		r5,	#10
-	mov		r6, #632
-block3:
-	ldr		r0, =blue_block
-	mov		r1, r6
-	mov		r2, #314
-	bl		DrawBlock
-	add		r6, #56
-	subs	r5, #1
-	bne		block3
-
-	mov		r5,	#10
-	mov		r6, #632
-block4:
-	ldr		r0, =red_block
-	mov		r1, r6
-	mov		r2, #342
-	bl		DrawBlock
-	add		r6, #56
-	subs	r5, #1
-	bne		block4
-
-	mov		r5,	#10
-	mov		r6, #632
-block5:
-	ldr		r0, =green_block
-	mov		r1, r6
-	mov		r2, #370
-	bl		DrawBlock
-	add		r6, #56
-	subs	r5, #1
-	bne		block5
-
-	mov		r5,	#10
-	mov		r6, #632
-block6:
-	ldr		r0, =turquoise_block
-	mov		r1, r6
-	mov		r2, #398
-	bl		DrawBlock
-	add		r6, #56
-	subs	r5, #1
-	bne		block6
-
-	mov		r5,	#10
-	mov		r6, #632
-block7:
-	ldr		r0, =orange_block
-	mov		r1, r6
-	mov		r2, #426
-	bl		DrawBlock
-	add		r6, #56
-	subs	r5, #1
-	bne		block7
-
-	mov		r5,	#10
-	mov		r6, #632
-block8:
-	ldr		r0, =silver_block
-	mov		r1, r6
-	mov		r2, #454
-	bl		DrawBlock
-	add		r6, #56
-	subs	r5, #1
-	bne		block8
-
-	mov		r5,	#10
-	mov		r6, #632
-block9:
+	
+	ldr		r4, =width
+	mov		r5, #70
+	str		r5, [r4]
+	
+	ldr		r4,	=height
+	mov		r5, #15
+	str		r5, [r4]
+	bl		DrawImage
+	
+	@ draw a row of gold blocks
 	ldr		r0, =gold_block
-	mov		r1, r6
-	mov		r2, #482
-	bl		DrawBlock
-	add		r6, #56
-	subs	r5, #1
-	bne		block9
+	mov		r1, #632
+	mov		r2, #230
+	
+	ldr		r4, =width
+	mov		r5, #56
+	str		r5, [r4]
+	
+	ldr		r4,	=height
+	mov		r5, #28
+	str		r5, [r4]
+	bl		DrawBlockRow
+	
+	@ draw a row of silver blocks
+	ldr		r0, =silver_block
+	mov		r1, #632
+	mov		r2, #258
+	bl		DrawBlockRow
+	
+	@ draw a row of white blocks
+	ldr		r0, =white_block
+	mov		r1, #632
+	mov		r2, #286
+	bl		DrawBlockRow
 
+@ Draw Block Row
+@  r0 - address of block data
+@  r1 - x
+@  r2 - y
+DrawBlockRow:
+	push	{r4, r5, r6, r7, lr}
+	
+	img		.req	r4
+	x		.req	r5
+	y		.req	r6
+	
+	mov		img, r0
+	mov		x, 	 r1
+	mov		y,   r2
+	
+	mov		r7,	#10
+block:
+	mov		r0, img
+	mov		r1, x
+	mov		r2, y
+	bl		DrawImage
+	add		x, #56
+	subs	r7, #1
+	bne		block
+
+	.unreq	img
+	.unreq	x
+	.unreq	y
+	push	{r4, r5, r6, r7, pc}
+// END DRAW BLOCK ROW
 
 haltLoop$:
 	b		haltLoop$
@@ -164,7 +126,7 @@ DrawPixel:
 @  r2 - y
 
 DrawImage:
-	push	{r4, r5, r6, r7, r8, lr}
+	push	{r4, r5, r6, r7, r8, r9, lr}
 	
 	img		.req	r4
 	x		.req	r5
@@ -174,10 +136,12 @@ DrawImage:
 	mov		x,   r1
 	mov		y,   r2
 	
-	mov		r7, #718					@ init row counter
+	ldr		r9, =height
+	ldr		r7, [r9]					@ init row counter
 
 drawCol:
-	mov		r8, #608					@ init/reset column counter
+	ldr		r9, =width
+	ldr		r8, [r9]					@ init/reset column counter
 	
 drawRow:	
 	mov		r0, x
@@ -191,7 +155,8 @@ drawRow:
 	bne		drawRow
 	
 	add		y,  #1						@ increment row
-	sub		x,  #608					@ reset x
+	ldr		r8, [r9]					@ reload width
+	sub		x,  r8						@ reset x
 	
 	subs	r7, #1						@ decrement row counter
 	bne		drawCol						@ draw next column
@@ -199,85 +164,8 @@ drawRow:
 	.unreq	img
 	.unreq	x
 	.unreq	y
-	pop		{r4, r5, r6, r7, r8, pc}
-////////////////
-
-DrawPaddle:
-	push	{r4, r5, r6, r7, r8, lr}
-	
-	img		.req	r4
-	x		.req	r5
-	y		.req	r6
-	
-	mov		img, r0			
-	mov		x,   r1
-	mov		y,   r2
-	
-	mov		r7, #15					@ init row counter
-
-drawpCol:
-	mov		r8, #70					@ init/reset column counter
-	
-drawpRow:	
-	mov		r0, x
-	mov		r1, y
-
-	ldr		r2, [img], #4				@ load a word from img
-	bl		DrawPixel
-	
-	add		x,  #1						@ increment column
-	subs	r8, #1						@ decrement column counter
-	bne		drawpRow
-	
-	add		y,  #1						@ increment row
-	sub		x,  #70					@ reset x
-	
-	subs	r7, #1						@ decrement row counter
-	bne		drawpCol						@ draw next column
-	
-	.unreq	img
-	.unreq	x
-	.unreq	y
-	pop		{r4, r5, r6, r7, r8, pc}
-
-DrawBlock:
-	push	{r4, r5, r6, r7, r8, lr}
-	
-	img		.req	r4
-	x		.req	r5
-	y		.req	r6
-	
-	mov		img, r0			
-	mov		x,   r1
-	mov		y,   r2
-	
-	mov		r7, #28					@ init row counter
-
-drawbCol:
-	mov		r8, #56					@ init/reset column counter
-	
-drawbRow:	
-	mov		r0, x
-	mov		r1, y
-
-	ldr		r2, [img], #4				@ load a word from img
-	bl		DrawPixel
-	
-	add		x,  #1						@ increment column
-	subs	r8, #1						@ decrement column counter
-	bne		drawbRow
-	
-	add		y,  #1						@ increment row
-	sub		x,  #56					@ reset x
-	
-	subs	r7, #1						@ decrement row counter
-	bne		drawbCol						@ draw next column
-	
-	.unreq	img
-	.unreq	x
-	.unreq	y
-	pop		{r4, r5, r6, r7, r8, pc}
-
+	pop		{r4, r5, r6, r7, r8, r9, pc}
+// END DRAW IMAGE
 
 @ Data section
 .section .data
@@ -296,3 +184,9 @@ frameBufferInfo:
 // background:		608 x 718
 // small_paddle:	70  x 15
 // block:			56  x 28
+
+width:
+.int	0
+
+height:
+.int	0
