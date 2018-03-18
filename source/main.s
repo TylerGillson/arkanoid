@@ -4,11 +4,71 @@
 
 .global main
 main:
+	@ initialize the SNES driver
+	bl		initSNES
+	
 	@ ask for frame buffer information
 	ldr 	r0, =frameBufferInfo 		@ frame buffer information structure
 	bl		initFbInfo
 
-	@ draw the image stored at image_loc
+	menu_option		.req	r4	
+	b		selectStart
+	
+homeLoop:
+	bl		getInput
+
+// B     = 12
+// Y     = 11
+// Sel   = 10
+// Sta   = 9
+// UP    = 8
+// DOWN  = 7
+// LEFT  = 6
+// RIGHT = 5
+// A     = 4
+// X     = 3
+// L     = 2
+// R	 = 1
+input:	
+	cmp		r1, #4					@ A was pressed
+	bne		nav
+	teq		menu_option, #1
+	beq		startGame
+	bne		quitGame
+
+nav:	
+	cmp		r1, #7					@ Joy-pad DOWN was pressed
+	beq		selectQuit
+	
+	cmp		r1, #8					@ Joy-pad UP was pressed
+	beq		selectStart
+	
+	b		homeLoop
+
+selectStart:
+	bl		drawHomeScreen
+	mov		r1, #811
+	mov		r2, #361
+	bl		drawMenuSelection
+		
+	mov		menu_option, #1
+	b		homeLoop
+
+selectQuit:
+	bl		drawHomeScreen
+	mov		r1, #811
+	mov		r2, #481
+	bl		drawMenuSelection
+	mov		menu_option, #0
+test:
+	b		homeLoop
+
+quitGame:
+	b		quitGame
+	
+startGame:
+// DRAW START SCREEN:
+	@ draw the background
 	ldr		r0, =background1
 	mov		r1, #608
 	mov		r2, #133
@@ -33,6 +93,20 @@ main:
 	
 	ldr		r4,	=height
 	mov		r5, #15
+	str		r5, [r4]
+	bl		DrawImage
+	
+	@ draw the ball
+	ldr		r0, =ball
+	mov		r1, #917
+	mov		r2, #735
+	
+	ldr		r4, =width
+	mov		r5, #8
+	str		r5, [r4]
+	
+	ldr		r4,	=height
+	mov		r5, #8
 	str		r5, [r4]
 	bl		DrawImage
 	
@@ -61,6 +135,50 @@ main:
 	mov		r1, #632
 	mov		r2, #286
 	bl		DrawBlockRow
+	
+drawn:
+	b drawn
+// END DRAW START SCREEN
+
+// DRAW HOME SCREEN
+drawHomeScreen:
+	push	{r4, r5, lr}
+	ldr		r0, =home_screen
+	mov		r1, #608
+	mov		r2, #133
+	
+	ldr		r4, =width
+	mov		r5, #608
+	str		r5, [r4]
+	
+	ldr		r4,	=height
+	mov		r5, #500
+	str		r5, [r4]
+	bl		DrawImage
+	pop		{r4, r5, pc}
+
+// DRAW THE MENU SELECTION
+drawMenuSelection:
+	push	{r4, r5, lr}
+	
+	ldr		r0, =menu_select
+	ldr		r4, =width
+	mov		r5, #214
+	str		r5, [r4]
+	
+	ldr		r4,	=height
+	mov		r5, #114
+	str		r5, [r4]
+	bl		DrawImage
+	
+	pop		{r4, r5, pc}
+
+//gameLoop:
+//	bl		getInput		// read from the SNES controller
+//	bl		updateState		// update game state variables
+//	bl		clear			// erase the game grid
+//	bl		draw			// re-draw the game grid
+//	b		gameLoop
 
 @ Draw Block Row
 @  r0 - address of block data
@@ -90,12 +208,8 @@ block:
 	.unreq	img
 	.unreq	x
 	.unreq	y
-	push	{r4, r5, r6, r7, pc}
+	pop	{r4, r5, r6, r7, pc}
 // END DRAW BLOCK ROW
-
-haltLoop$:
-	b		haltLoop$
-
 
 @ Draw Pixel
 @  r0 - x
@@ -185,8 +299,39 @@ frameBufferInfo:
 // small_paddle:	70  x 15
 // block:			56  x 28
 
+// game play area:	560 x 700 (origin at 632x151)
+// n = 10, m = 28, making a 280 cell grid
+
 width:
 .int	0
 
 height:
 .int	0
+
+gamemap:
+.rept	280			// Game play area grid
+.int	0
+.endr
+
+paddle_position:
+.int	886			// x coordinate
+.int	743			// y coordinate
+
+ball_position:
+.int	917			// x coordinate
+.int	735			// y coordinate
+.int	45			// angle
+.int	2			// direction (1-8: 1=N, 2=NE, 3=E, 4=SE, 5=S, 6=SW, 7=W, 8=NW)
+.int	10			// speed (default=10)
+
+score:
+.int	0			// player score
+
+lives:
+.int	5			// number of lives (default=5)
+
+win:
+.int	0			// win flag
+
+lose:
+.int	0			// lose flag
