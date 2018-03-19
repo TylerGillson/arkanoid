@@ -175,6 +175,11 @@ drawMenuSelection:
 
 //gameLoop:
 //	bl		getInput		// read from the SNES controller
+
+// move the paddle?
+// menu?
+// 
+
 //	bl		updateState		// update game state variables
 //	bl		clear			// erase the game grid
 //	bl		draw			// re-draw the game grid
@@ -321,7 +326,7 @@ ball_position:
 .int	917			// x coordinate
 .int	735			// y coordinate
 .int	45			// angle
-.int	2			// direction (1-8: 1=N, 2=NE, 3=E, 4=SE, 5=S, 6=SW, 7=W, 8=NW)
+.int	1			// direction (1-4: 1=NW, 2=NE, 3=SW, 4=SE)
 .int	10			// speed (default=10)
 
 score:
