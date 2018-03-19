@@ -1,8 +1,8 @@
 @ Code section
 .section    .text
 
-.global initSNES
-initSNES:
+.global InitSNES
+InitSNES:
 		push	{r4, lr}
 		gBase	.req	r4
 
@@ -31,6 +31,19 @@ initSNES:
 		.unreq	gBase
 		pop		{r4, pc}
 
+// B     = 12
+// Y     = 11
+// Sel   = 10
+// Sta   = 9
+// UP    = 8
+// DOWN  = 7
+// LEFT  = 6
+// RIGHT = 5
+// A     = 4
+// X     = 3
+// L     = 2
+// R	 = 1
+
 /*
  * Get input from the SNES controller
  * 
@@ -38,8 +51,8 @@ initSNES:
  *   r0 - register containing all button data
  *	 r1 - code of the button that was pressed
  */
-.global getInput
-getInput:
+.global GetInput
+GetInput:
 		push	{r4, r5, r6, lr}
 read:		
 		bl		Read_SNES			@ Read from SNES controller	
