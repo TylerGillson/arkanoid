@@ -1,3 +1,8 @@
+@ Clear necessary tiles
+@
+.global Clear
+Clear:
+	bx		lr
 @ 
 @ Draw each tile in the game map according to its encoding
 @

@@ -11,19 +11,16 @@ main:
 	ldr 	r0, =frameBufferInfo 		@ frame buffer information structure
 	bl		initFbInfo
 
-	@ Execute home loop logic (game.s)
-	bl		HomeLoop
+	@ Execute home loop logic
+	bl		HomeLoop		// (game.s)
 	
 .global GameLoop
 GameLoop:
-	bl		GetInput		// read from the SNES controller (snes_driver.s)
-	bl		UpdateBall
-	
-
-//	bl		updateState		// update game state variables
-//	bl		clear			// erase the game grid
-//	bl		draw			// re-draw the game grid
-//	b		GameLoop
+	bl		ReadSNES		// read from the SNES controller (snes_driver.s)
+	bl		Update			// update game state variables (movement.s)
+	//bl		Clear			// erase necessary game grid tiles (game_map.s)
+	bl		DrawObjects		// re-draw the paddle & ball (drawing.s)
+	b		GameLoop
 
 @ Data section
 .section .data
@@ -34,7 +31,6 @@ frameBufferInfo:
 	.int	0							@ frame buffer pointer
 	.int	0							@ screen width (1824px)
 	.int	0							@ screen height (984px)
-
 
 // Sizes:
 //					X	  Y
@@ -73,7 +69,7 @@ ball_position:
 .int	668			// grid x origin + 512
 .int	0			// angle (0=45 degrees, 1=60 degrees)
 .int	1			// direction (1-4: 1=NW, 2=NE, 3=SW, 4=SE)
-.int	1			// speed (default=1)
+.int	1			// ball is active flag
 
 .global score
 score:

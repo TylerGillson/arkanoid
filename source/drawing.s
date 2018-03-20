@@ -1,3 +1,43 @@
+@
+@ Draw the ball & the paddle
+@
+.global DrawObjects
+DrawObjects:
+	push	{r4-r5, lr}
+	
+@ draw the paddle
+	ldr		r0, =small_paddle
+	ldr		r4, =paddle_position
+	ldr		r1, [r4]			// x coord
+	ldr		r2, [r4, #4]		// y coord
+
+	ldr		r4, =width
+	mov		r5, #90
+	str		r5, [r4]
+	
+	ldr		r4,	=height
+	mov		r5, #21
+	str		r5, [r4]
+	bl		DrawImage
+
+@ draw the ball
+	ldr		r0, =ball
+	ldr		r4, =ball_position
+	ldr		r1, [r4]			// x coord
+	ldr		r2, [r4, #4]		// y coord
+		
+	ldr		r4, =width
+	mov		r5, #32
+	str		r5, [r4]
+	
+	ldr		r4,	=height
+	mov		r5, #32
+	str		r5, [r4]
+	bl		DrawImage	
+
+	pop		{r4-r5, pc}
+// END DRAW OBJECTS
+
 @ Draw Pixel
 @  r0 - x
 @  r1 - y

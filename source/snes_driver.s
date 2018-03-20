@@ -30,51 +30,6 @@ InitSNES:
 		
 		.unreq	gBase
 		pop		{r4, pc}
-
-// B     = 12
-// Y     = 11
-// Sel   = 10
-// Sta   = 9
-// UP    = 8
-// DOWN  = 7
-// LEFT  = 6
-// RIGHT = 5
-// A     = 4
-// X     = 3
-// L     = 2
-// R	 = 1
-
-/*
- * Get input from the SNES controller
- * 
- * Returns:
- *   r0 - register containing all button data
- *	 r1 - code of the button that was pressed
- */
-.global GetInput
-GetInput:
-		push	{r4, r5, r6, lr}
-read:		
-		bl		Read_SNES			@ Read from SNES controller	
-		teq		r1, #0
-		beq		read				@ If no button was pressed, read again
-		sub		r4, r1, #1			@ Store button code's lsl offset
-release:
-		mov		r0, #50000			
-		bl		delayMicroseconds	@ Give the player 1/20th of a second to release the button...
-		bl		Read_SNES
-		
-		mov		r2, #1
-		lsl		r2, r4				@ Make bit mask for comparing original button code to current button register state
-		ands	r3, r2, r0			@ Check if same button is still pressed
-		moveq	r5, r0
-		moveq	r6, r1
-		beq 	release				@ If button is still pressed, wait for it to release again
-
-pressed:
-		mov		r0, r5
-		mov		r1, r6
-		pop		{r4, r5, r6, pc}
 		
 /*
  * Write a bit to the SNES latch line.
@@ -130,14 +85,29 @@ Read_Data:
 		and		r0, r1					@ Set flags: Z = 0 = Low, Z = 1 = High 
 		bx		lr
 
+// B     = 12
+// Y     = 11
+// Sel   = 10
+// Sta   = 9
+// UP    = 8
+// DOWN  = 7
+// LEFT  = 6
+// RIGHT = 5
+// A     = 4
+// X     = 3
+// L     = 2
+// R	 = 1
+
 /*
  * Read the current state of each of the SNES controller's buttons.
  *
  * Returns:
  * r0 = result register (12 least signigicant bits = map of which buttons are pressed)
  * r1 = code indicating which button was pressed (index of first 0 in result register)
+ *		code = 0 means nothing was pressed
  */
-Read_SNES:
+.global ReadSNES
+ReadSNES:
 		push	{r5, r6, r7, r8, r9, lr}
 		mov		r0, #1					
  		bl		Write_Latch				@ Set latch line to high

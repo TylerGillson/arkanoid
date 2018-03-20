@@ -1,11 +1,59 @@
+@ Wait for user input on the home screen
+@
+.global HomeLoop
+HomeLoop:
+	push	{r4, lr}
+	
+	menu_option		.req	r4	
+	bl		InitGame	//TESTING ONLY
+	b		GameLoop	//TESTING ONLY
+
+	b		selectStart
+	
+waitLoop:
+	bl		ReadSNES				// See snes_driver.s
+
+input:	
+	cmp		r1, #4					// A was pressed
+	bne		nav
+	teq		menu_option, #1
+	bleq	InitGame
+	beq		GameLoop				// begin the main game loop (main.s)
+	blne	QuitGame
+
+nav:	
+	cmp		r1, #7					// Joy-pad DOWN was pressed
+	beq		selectQuit
+	cmp		r1, #8					// Joy-pad UP was pressed
+	beq		selectStart
+	b		waitLoop				// Something else was pressed, so restart
+
+selectStart:
+	bl		DrawHomeScreen
+	mov		r1, #811
+	mov		r2, #361
+	bl		DrawMenuSelection
+	mov		menu_option, #1
+	b		waitLoop
+
+selectQuit:
+	bl		DrawHomeScreen
+	mov		r1, #811
+	mov		r2, #481
+	bl		DrawMenuSelection
+	mov		menu_option, #0
+	b		waitLoop
+	
+	.unreq	menu_option
+	pop		{r4, pc}
+
 @
 @ Initialize the game map and draw it to the screen.
 @ Then draw the paddle and the ball.
 @
-.global InitGame
 InitGame:
-// DRAW START SCREEN:
-
+	push	{r4-r6, lr}
+	
 @ Set the top of the game map to walls
 	ldr		r4, =game_map
 	mov		r5, #0
@@ -38,85 +86,13 @@ white_row:
 	blt		white_row
 
 @ Draw the contents of the game map
-	bl		DrawMap
+	bl		DrawMap				// (game_map.s)	
+	bl		DrawObjects			// (drawing.s)
 	
-@ draw the paddle
-	ldr		r0, =small_paddle
-	mov		r1, #864
-	mov		r2, #700
-	
-	ldr		r4, =width
-	mov		r5, #90
-	str		r5, [r4]
-	
-	ldr		r4,	=height
-	mov		r5, #21
-	str		r5, [r4]
-	bl		DrawImage
-	
-@ draw the ball
-	ldr		r0, =ball
-	mov		r1, #880
-	mov		r2, #668
-	
-	ldr		r4, =width
-	mov		r5, #32
-	str		r5, [r4]
-	
-	ldr		r4,	=height
-	mov		r5, #32
-	str		r5, [r4]
-	bl		DrawImage
-	
-	bl		GameLoop			// begin the main game loop
+	pop		{r4-r6, pc}
 // END INIT GAME
 
 @ TODO: DRAW BLACK over everything?
 @
-.global QuitGame
 QuitGame:
 	b		QuitGame
-
-@ Wait for user input on the home screen
-@
-.global HomeLoop
-HomeLoop:
-	menu_option		.req	r4	
-	b		selectStart
-	
-waitLoop:
-	bl		GetInput				// See snes_driver.s
-
-input:	
-	cmp		r1, #4					// A was pressed
-	bne		nav
-	teq		menu_option, #1
-	bleq	InitGame
-	blne	QuitGame
-
-nav:	
-	cmp		r1, #7					// Joy-pad DOWN was pressed
-	beq		selectQuit
-	
-	cmp		r1, #8					// Joy-pad UP was pressed
-	beq		selectStart
-	
-	b		waitLoop				// Something else was pressed, so restart
-
-selectStart:
-	bl		DrawHomeScreen
-	mov		r1, #811
-	mov		r2, #361
-	bl		DrawMenuSelection
-		
-	mov		menu_option, #1
-	b		waitLoop
-
-selectQuit:
-	bl		DrawHomeScreen
-	mov		r1, #811
-	mov		r2, #481
-	bl		DrawMenuSelection
-	mov		menu_option, #0
-
-	b		waitLoop
