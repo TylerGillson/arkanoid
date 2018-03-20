@@ -20,6 +20,10 @@ GameLoop:
 	bl		Update			// update game state variables (movement.s)
 	//bl		Clear			// erase necessary game grid tiles (game_map.s)
 	bl		DrawObjects		// re-draw the paddle & ball (drawing.s)
+	
+	mov		r0, #50000
+	bl		delayMicroseconds
+	
 	b		GameLoop
 
 @ Data section
@@ -68,8 +72,8 @@ ball_position:
 .int	880			// grid x origin + 256
 .int	668			// grid x origin + 512
 .int	0			// angle (0=45 degrees, 1=60 degrees)
-.int	1			// direction (1-4: 1=NW, 2=NE, 3=SW, 4=SE)
-.int	1			// ball is active flag
+.int	1			// direction (1-4: 1=NW, 2=NE, 3=SE, 4=SW)
+.int	0			// ball is active flag
 
 .global score
 score:

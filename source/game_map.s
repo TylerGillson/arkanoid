@@ -28,7 +28,7 @@ draw_row:
 draw_col:	
 	mov		r0, r4				// row counter
 	mov		r1, r5				// col counter
-	bl		getIndex			// Get offset into game_map
+	bl		GetIndex			// Get offset into game_map
 	ldrb	r7, [r6, r0]		// Load the byte for the current tile
 	
 	teq		r7, #0
@@ -65,7 +65,8 @@ draw_col:
 @
 @ Returns:
 @  r0 - offset to add to address of game_map
-getIndex:
+.global GetIndex
+GetIndex:
 	mov		r2, #12
 	mul		r0, r0, r2
 	add		r0, r0, r1
