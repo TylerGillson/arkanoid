@@ -98,6 +98,16 @@ updated:
 CheckCollision:
 	push	{r4-r8, lr}
 
+@ determine if the ball is going NE or SE
+	ldr		r4, =ball_position
+	ldr		r5, [r4, #12]	// direction
+	cmp		r5, #2
+	blt		calcTile
+	cmp		r5, #3
+	bgt		calcTile
+	add		r1, #32			// If NE/SE, add 32 to x
+
+calcTile:
 	mov		r4, #0			// col counter
 col:	
 	cmp		r1, #672		// compare w/ screen side + 1 brick width
@@ -113,10 +123,8 @@ row:
 	bhi		row
 
 @ ball's top left corner is in game_map[r4][r5]	
-	
 	mov		r0, r5
 	mov		r1, r4
-tile1:
 	bl		GetIndex
 	
 	ldr		r4, =game_map
@@ -131,11 +139,30 @@ tile2:
 	b		endCol
 hitwall:
 	ldr		r4, =ball_position
-	ldr		r5, [r4, #12]	// direction	
+	ldr		r5, [r4, #12]	// Get ball direction	
+	ldr		r7, [r4, #4]	// Get ball y
+	
 	teq		r5,	#4
-	subeq	r5, #3			// If 4, reset to 1
-	beq		store		
-	add		r5, #1			// Otherwise, increment
+	subeq	r5, #1			// If direction=4 (SW), set to 3 (SE) 
+	beq		store
+	
+	teq		r5,	#3
+	addeq	r5, #1			// If direction=3 (SE), set to 3 (SW) 
+	beq		store
+	
+	teq		r5, #2			// If direction=2 (NE),
+	bne		northwest
+northeast:
+	cmp		r7, #156		// Hitting the ceiling?
+	subhi	r5, #1			// NE --> NW (hitting the wall)
+	addls	r5, #1			// NE --> SE (hitting the ceiling)
+	b		store
+	
+northwest:	
+	cmp		r7, #156		// Hitting the ceiling?
+	addhi	r5, #1			// NW --> NE (hitting the wall)
+	addls	r5, #3			// NW --> SW (hitting the ceiling)
+
 store:
 	str		r5, [r4, #12]	// save new direction
 	bl		UpdateBall

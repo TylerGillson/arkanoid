@@ -21,7 +21,7 @@ GameLoop:
 	//bl		Clear			// erase necessary game grid tiles (game_map.s)
 	bl		DrawObjects		// re-draw the paddle & ball (drawing.s)
 	
-	mov		r0, #20000
+	mov		r0, #10000
 	bl		delayMicroseconds
 	
 	b		GameLoop
@@ -72,7 +72,7 @@ ball_position:
 .int	880			// grid x origin + 256
 .int	668			// grid x origin + 512
 .int	0			// angle (0=45 degrees, 1=60 degrees)
-.int	1			// direction (1-4: 1=NW, 2=NE, 3=SE, 4=SW)
+.int	2			// direction (1-4: 1=NW, 2=NE, 3=SE, 4=SW)
 .int	0			// ball is active flag
 
 .global score
