@@ -23,7 +23,7 @@ Update:
 postUser:
 	ldr		r6, =ball_position
 	ldr		r7, [r6, #16]	
-test:
+
 	teq		r7, #1			// check ball active flag
 	bleq	UpdateBall		// update position if 1
 	beq		done
@@ -63,26 +63,27 @@ UpdateBall:
 	ldr		r0, [r3, #12]	// get the ball's direction
 	ldr		r1, [r3]		// x coord
 	ldr		r2, [r3, #4]	// y coord
-	
+
+ballstate:	
 	teq		r0, #1			// NW?
 	subeq	r1, #1
 	subeq	r2, #1
-	beq		update
+	beq		updated
 	
 	teq		r0, #2			// NE?
 	addeq	r1, #1
 	subeq	r2, #1
-	beq		update
+	beq		updated
 	
 	teq		r0, #3			// SE?
 	addeq	r1, #1
 	addeq	r2, #1
-	beq		update
+	beq		updated
 	
 	sub	r1, #1				// SW			
 	add	r2, #1
 
-update:
+updated:
 	str		r1, [r3]		// update x
 	str		r2, [r3, #4]	// update y
 	
@@ -96,41 +97,47 @@ update:
 @  r2 - ball y
 CheckCollision:
 	push	{r4-r8, lr}
-	
+
 	mov		r4, #0			// col counter
 col:	
-	cmp		r1, #624		// compare w/ screen side
+	cmp		r1, #672		// compare w/ screen side + 1 brick width
 	subhi	r1, #48			// brick width
 	addhi	r4, #1
 	bhi		col	
 
 	mov		r5, #0			// row counter
 row:
-	cmp		r2, #156		// compare w/ screen top
+	cmp		r2, #156		// compare w/ screen top + 1 brick height
 	subhi	r2, #32			// brick height
 	addhi	r5, #1
 	bhi		row
 
 @ ball's top left corner is in game_map[r4][r5]	
 	
-	mov		r0, r4
-	mov		r1, r5
+	mov		r0, r5
+	mov		r1, r4
+tile1:
 	bl		GetIndex
 	
 	ldr		r4, =game_map
-	ldrb	r5, [r4, r0]	// get tile at game_map[x][y]
-	
-	teq		r5, #0			// ball is on background
+	ldrb	r6, [r4, r0]	// get tile at game_map[x][y]
+tile2:	
+	teq		r6, #0			// ball is on background
 	beq		endCol
 	
-	teq		r5, #1			// ball is on the wall
-	bne		endCol
-	ldr		r4, =ball_position
-	ldr		r5, [r4, #12]	// direction
-	teq		r5,	#4
-	subeq	r5, #1			// If 4, reset to 1
-	addne	r5, #1			// Otherwise, increment
-	str		r5, [r4, #12]	// save new direction
+	teq		r6, #1			// ball is on the wall
+	beq		hitwall
 	
+	b		endCol
+hitwall:
+	ldr		r4, =ball_position
+	ldr		r5, [r4, #12]	// direction	
+	teq		r5,	#4
+	subeq	r5, #3			// If 4, reset to 1
+	beq		store		
+	add		r5, #1			// Otherwise, increment
+store:
+	str		r5, [r4, #12]	// save new direction
+	bl		UpdateBall
 endCol:	
 	pop		{r4-r8, pc}

@@ -5,8 +5,8 @@ HomeLoop:
 	push	{r4, lr}
 	
 	menu_option		.req	r4	
-	bl		InitGame	//TESTING ONLY
-	b		GameLoop	//TESTING ONLY
+	//bl		InitGame	//TESTING ONLY
+	//b		GameLoop	//TESTING ONLY
 
 	b		selectStart
 	
