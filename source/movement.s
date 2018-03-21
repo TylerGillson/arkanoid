@@ -107,17 +107,27 @@ CheckCollision:
 
 getTile:
 	bl		CalcTile
-	bl		GetIndex
+	bl		GetIndex		// r0 = tile idx
 	ldr		r4, =game_map
 	ldrb	r6, [r4, r0]	// get tile at game_map[x][y]
 	teq		r6, #0			// ball is on background
 	beq		endCol
 	
 	teq		r6, #1			// ball is on the wall
+	mov		r8, #0			// wall vs. brick flag
 	beq		hitwall
 
-// MISSING TEST FOR BRICK	
+	cmp		r6, #1
+	bhi		hitbrick
+
 	b		endCol			
+
+hitbrick:
+	mov		r1, #0
+	str		r1, [r4, r0]
+	mov		r8, #1
+	// FLIP DIRECTION X-AXIS
+	// FLIP DIRECTION Y-AXIS
 	
 hitwall:
 	ldr		r4, =ball_position
@@ -135,12 +145,20 @@ hitwall:
 	teq		r5, #2			// If direction=2 (NE),
 	bne		northwest
 northeast:
+	teq		r8, #1			// HITTING BRICK OVERRIDE
+	addeq	r5, #1
+	beq		store 
+	
 	cmp		r7, #188		// Hitting the ceiling?
 	subhi	r5, #1			// NE --> NW (hitting the wall)
 	addls	r5, #1			// NE --> SE (hitting the ceiling)
 	b		store
 	
 northwest:	
+	teq		r8, #1			// HITTING BRICK OVERRIDE
+	addeq	r5, #3
+	beq		store 
+	
 	cmp		r7, #188		// Hitting the ceiling?
 	addhi	r5, #1			// NW --> NE (hitting the wall)
 	addls	r5, #3			// NW --> SW (hitting the ceiling)

@@ -21,7 +21,7 @@ GameLoop:
 	bl		Clear			// erase necessary game grid tiles (game_map.s)
 	bl		DrawObjects		// re-draw the paddle & ball (drawing.s)
 	
-	mov		r0, #10000
+	mov		r0, #5000
 	bl		delayMicroseconds
 	
 	b		GameLoop
