@@ -6,34 +6,19 @@ DrawObjects:
 	push	{r4-r5, lr}
 	
 @ draw the paddle
+	bl		InitDrawPaddle
 	ldr		r0, =small_paddle2
 	ldr		r4, =paddle_position
 	ldr		r1, [r4]			// x coord
 	ldr		r2, [r4, #4]		// y coord
-
-	ldr		r4, =width
-	mov		r5, #96
-	str		r5, [r4]
-	
-	ldr		r4,	=height
-	mov		r5, #21
-	str		r5, [r4]
 	bl		DrawImage
 
 @ draw the ball
+	bl		InitDrawBall
 	ldr		r0, =ball
 	ldr		r4, =ball_position
 	ldr		r1, [r4]			// x coord
-	ldr		r2, [r4, #4]		// y coord
-		
-	ldr		r4, =width
-	mov		r5, #32
-	str		r5, [r4]
-	
-	ldr		r4,	=height
-	mov		r5, #32
-	str		r5, [r4]
-DRAWINGBALL:
+	ldr		r2, [r4, #4]		// y coord	
 	bl		DrawImage	
 
 	pop		{r4-r5, pc}

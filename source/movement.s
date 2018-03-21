@@ -47,12 +47,26 @@ UpdatePaddle:
 	mov		r6, #1			// paddle shift amount
 	tst		r0, #(1<<4)		// check 'A' bit
 	addeq	r6, #5			// accelerate paddle if A is pressed
-	
+
+// Don't let the paddle exit the play area!	
 	cmp		r1, #1
-	addeq	r5, r6			// move right
-	subne	r5, r6			// move left
-	str		r5, [r4]
+	beq		moveRight
 	
+	cmp		r5, #672		// moving left
+	beq		skipMove
+	sub		r5, r6			// move left
+	b		storeMove
+	
+moveRight:
+	mov		r7, r5
+	add		r7, #96
+	cmp		r7, #1152
+	beq		skipMove
+	add		r5, r6			// move right
+
+storeMove:
+	str		r5, [r4]
+skipMove:
 	pop		{r4-r7, pc}
 	
 @ 
@@ -116,7 +130,7 @@ getTile:
 	
 	mov		r0, r5			// pass direction as a param	
 	bl		CheckPaddle		// if on background, check for paddle collisions
-CHECKED:	
+
 	teq		r1, #1			// is the ball hitting the paddle?
 	bne		endCol			// if not, skip the rest
 	

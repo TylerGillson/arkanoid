@@ -71,7 +71,6 @@ BOTTOMLEFT:
 	bl		DrawTile
 
 // CLEAR THE PADDLE
-	bl		InitDrawPaddle
 	ldr		r4, =paddle_position
 	ldr		r1, [r4]			// paddle x
 	ldr		r2, [r4, #4]		// paddle y
@@ -79,20 +78,19 @@ BOTTOMLEFT:
 	mov		r7, r2				// save paddle y
 	
 	bl		CalcTile
-	bl		DrawTile
+	bl		DrawTile			// TOP LEFT
+	
+	mov		r1, r6
+	sub		r1, #10
+	mov		r2, r7
+	bl		CalcTile
+	bl		DrawTile			// LEFT
 	
 	mov		r1, r6
 	add		r1, #96
 	mov		r2, r7
 	bl		CalcTile
-	bl		DrawTile
-	
-	mov		r1, r6
-	add		r1, #48
-	mov		r2, r7
-	bl		CalcTile
-	bl		DrawTile
-	
+	bl		DrawTile			// TOP RIGHT
 
 	pop		{r4-r10, pc}
 
@@ -180,8 +178,23 @@ InitDrawTile:
 	bx		lr
 
 @
+@ Initialize image width & height for drawing the ball 
+@
+.global InitDrawBall
+InitDrawBall:
+	ldr		r0, =width
+	mov		r1, #32
+	str		r1, [r0]
+	
+	ldr		r0,	=height
+	mov		r1, #32
+	str		r1, [r0]
+	bx		lr
+
+@
 @ Initialize image width & height for drawing the paddle 
 @
+.global InitDrawPaddle
 InitDrawPaddle:
 	ldr		r0, =width
 	mov		r1, #96
