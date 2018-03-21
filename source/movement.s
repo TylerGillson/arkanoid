@@ -64,7 +64,6 @@ UpdateBall:
 	ldr		r1, [r3]		// x coord
 	ldr		r2, [r3, #4]	// y coord
 
-ballstate:	
 	teq		r0, #1			// NW?
 	subeq	r1, #1
 	subeq	r2, #1
@@ -86,12 +85,10 @@ ballstate:
 updated:
 	str		r1, [r3]		// update x
 	str		r2, [r3, #4]	// update y
-	
 	bl		CheckCollision
-	
+		
 	bx		lr
 
-@
 @ Check for collisions with walls & bricks
 @  r1 - ball x
 @  r2 - ball y
@@ -101,42 +98,27 @@ CheckCollision:
 @ determine if the ball is going NE or SE
 	ldr		r4, =ball_position
 	ldr		r5, [r4, #12]	// direction
-	cmp		r5, #2
-	blt		calcTile
-	cmp		r5, #3
-	bgt		calcTile
-	add		r1, #32			// If NE/SE, add 32 to x
-
-calcTile:
-	mov		r4, #0			// col counter
-col:	
-	cmp		r1, #672		// compare w/ screen side + 1 brick width
-	subhi	r1, #48			// brick width
-	addhi	r4, #1
-	bhi		col	
-
-	mov		r5, #0			// row counter
-row:
-	cmp		r2, #156		// compare w/ screen top + 1 brick height
-	subhi	r2, #32			// brick height
-	addhi	r5, #1
-	bhi		row
-
-@ ball's top left corner is in game_map[r4][r5]	
-	mov		r0, r5
-	mov		r1, r4
-	bl		GetIndex
 	
+	cmp		r5, #4
+	beq		getTile
+	cmp		r5, #1
+	beq		getTile
+	add		r1, #32			// If NE/SE, add 32 to ball x
+
+getTile:
+	bl		CalcTile
+	bl		GetIndex
 	ldr		r4, =game_map
 	ldrb	r6, [r4, r0]	// get tile at game_map[x][y]
-tile2:	
 	teq		r6, #0			// ball is on background
 	beq		endCol
 	
 	teq		r6, #1			// ball is on the wall
 	beq		hitwall
+
+// MISSING TEST FOR BRICK	
+	b		endCol			
 	
-	b		endCol
 hitwall:
 	ldr		r4, =ball_position
 	ldr		r5, [r4, #12]	// Get ball direction	
@@ -153,13 +135,13 @@ hitwall:
 	teq		r5, #2			// If direction=2 (NE),
 	bne		northwest
 northeast:
-	cmp		r7, #156		// Hitting the ceiling?
+	cmp		r7, #188		// Hitting the ceiling?
 	subhi	r5, #1			// NE --> NW (hitting the wall)
 	addls	r5, #1			// NE --> SE (hitting the ceiling)
 	b		store
 	
 northwest:	
-	cmp		r7, #156		// Hitting the ceiling?
+	cmp		r7, #188		// Hitting the ceiling?
 	addhi	r5, #1			// NW --> NE (hitting the wall)
 	addls	r5, #3			// NW --> SW (hitting the ceiling)
 
