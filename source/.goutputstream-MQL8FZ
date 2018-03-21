@@ -88,11 +88,11 @@ BOTTOMLEFT:
 	bl		DrawTile
 	
 	mov		r1, r6
-	add		r1, #48
+	sub		r1, #48
 	mov		r2, r7
+	add		r2, #10
 	bl		CalcTile
 	bl		DrawTile
-	
 
 	pop		{r4-r10, pc}
 

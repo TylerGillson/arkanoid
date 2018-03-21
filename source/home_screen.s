@@ -25,7 +25,7 @@ DrawMenuSelection:
 	ldr		r4, =width
 	mov		r5, #214
 	str		r5, [r4]
-	
+
 	ldr		r4,	=height
 	mov		r5, #114
 	str		r5, [r4]

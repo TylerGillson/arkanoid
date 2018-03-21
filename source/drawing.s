@@ -12,7 +12,7 @@ DrawObjects:
 	ldr		r2, [r4, #4]		// y coord
 
 	ldr		r4, =width
-	mov		r5, #90
+	mov		r5, #96
 	str		r5, [r4]
 	
 	ldr		r4,	=height
@@ -33,6 +33,7 @@ DrawObjects:
 	ldr		r4,	=height
 	mov		r5, #32
 	str		r5, [r4]
+DRAWINGBALL:
 	bl		DrawImage	
 
 	pop		{r4-r5, pc}
@@ -44,7 +45,7 @@ DrawObjects:
 @  r2 - colour
 
 DrawPixel:
-	push	{r4, r5}
+	push	{r4-r8, lr}
 	offset	.req	r4
 
 	ldr		r5, =frameBufferInfo	
@@ -53,12 +54,22 @@ DrawPixel:
 	add		offset,	r0, r1				@ offset = (y * width) + x
 	lsl		offset, #2					@ offset *= 4 (32 bits per pixel/8 = 4 bytes per pixel)
 	
+	// Make 0xffff00ff (transparent pixel value)
+	mov		r6, #0xff000000
+	mov		r7, #0x000000ff
+	orr		r8, r6, r7
+	mov		r6, #0x00ff0000
+	orr		r8, r8, r6
+
+	teq		r2, r8
+	beq		skipPixel
+	
 	ldr		r0, [r5]					@ r0 = frame buffer pointer
 	str		r2, [r0, offset]			@ store the colour (word) at frame buffer pointer + offset
-	
+
+skipPixel:	
 	.unreq	offset	
-	pop		{r4, r5}
-	bx		lr
+	pop		{r4-r8, pc}
 // END DRAW PIXEL
 
 @ Draw Image
