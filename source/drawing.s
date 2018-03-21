@@ -6,7 +6,7 @@ DrawObjects:
 	push	{r4-r5, lr}
 	
 @ draw the paddle
-	ldr		r0, =small_paddle
+	ldr		r0, =small_paddle2
 	ldr		r4, =paddle_position
 	ldr		r1, [r4]			// x coord
 	ldr		r2, [r4, #4]		// y coord

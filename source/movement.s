@@ -198,9 +198,18 @@ CheckPaddle:
 	ldr		r7, [r4]		// get paddle x
 	ldr		r8, [r4, #4]	// get paddle y
 	
-	cmp		r6, r8
+	cmp		r6, r8			// check y axis
 	movne	r1, #0
 	bne		endCP			// no collision
+	
+	cmp		r5, r7			// check ball left of paddle
+	movls	r1, #0
+	bls		endCP
+	
+	add		r7, #96
+	cmp		r5, r7			// check ball right of paddle
+	movhi	r1, #0
+	bhi		endCP
 	
 	teq		r0, #3			// 3=SE, 4=SW
 	subeq	r0, #1			// If SE, set to NE
