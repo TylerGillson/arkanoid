@@ -110,26 +110,35 @@ getTile:
 	bl		GetIndex		// r0 = tile idx
 	ldr		r4, =game_map
 	ldrb	r6, [r4, r0]	// get tile at game_map[x][y]
-	teq		r6, #0			// ball is on background
-	beq		endCol
 	
+	teq		r6, #0			// is ball on the background?
+	bne		checkBrickOrWall
+	
+	mov		r0, r5			// pass direction as a param	
+	bl		CheckPaddle		// if on background, check for paddle collisions
+CHECKED:	
+	teq		r1, #1			// is the ball hitting the paddle?
+	bne		endCol			// if not, skip the rest
+	
+	mov		r5, r0			// if yes, get new direction
+	b		store			// and update
+
+checkBrickOrWall:	
 	teq		r6, #1			// ball is on the wall
-	mov		r8, #0			// wall vs. brick flag
-	beq		hitwall
+	moveq	r8, #0			// clear "hitting brick" flag
+	beq		hitWall
 
 	cmp		r6, #1
-	bhi		hitbrick
+	bhi		hitBrick
 
 	b		endCol			
 
-hitbrick:
+hitBrick:
 	mov		r1, #0
 	str		r1, [r4, r0]
-	mov		r8, #1
-	// FLIP DIRECTION X-AXIS
-	// FLIP DIRECTION Y-AXIS
+	mov		r8, #1			// set "hitting brick" flag
 	
-hitwall:
+hitWall:
 	ldr		r4, =ball_position
 	ldr		r5, [r4, #12]	// Get ball direction	
 	ldr		r7, [r4, #4]	// Get ball y
@@ -164,7 +173,42 @@ northwest:
 	addls	r5, #3			// NW --> SW (hitting the ceiling)
 
 store:
+	ldr		r4, =ball_position
 	str		r5, [r4, #12]	// save new direction
 	bl		UpdateBall
 endCol:	
 	pop		{r4-r8, pc}
+	
+@ Test if the ball is colliding with the paddle + update its direction
+@  r0 - direction  
+@
+@ Returns: a new direction if there was a collision
+@  r0 - direction (possibly updated)
+@  r1 - paddle was hit flag
+@
+CheckPaddle:
+	push	{r4-r8, lr}
+	
+	ldr		r4, =ball_position
+	ldr		r5, [r4]		// get ball x
+	ldr		r6, [r4, #4]	// get ball y
+	add		r6, #32			// adjust for bottom of the ball
+	
+	ldr		r4, =paddle_position
+	ldr		r7, [r4]		// get paddle x
+	ldr		r8, [r4, #4]	// get paddle y
+	
+	cmp		r6, r8
+	movne	r1, #0
+	bne		endCP			// no collision
+	
+	teq		r0, #3			// 3=SE, 4=SW
+	subeq	r0, #1			// If SE, set to NE
+	subne	r0, #3			// If SW, set to NW
+	mov		r1, #1
+	
+endCP:
+	pop		{r4-r8, pc}
+
+
+
