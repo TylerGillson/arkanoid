@@ -18,12 +18,11 @@ main:
 GameLoop:
 	bl		ReadSNES		// read from the SNES controller (snes_driver.s)
 	bl		Update			// update game state variables (movement.s)
-	bl		Clear			// erase necessary game grid tiles (game_map.s)
+	bl		ClearObjects	// erase necessary game grid tiles (clearing.s)
 	bl		DrawObjects		// re-draw the paddle & ball (drawing.s)
 	
 	mov		r0, #5000
 	bl		delayMicroseconds
-	
 	b		GameLoop
 
 @ Data section

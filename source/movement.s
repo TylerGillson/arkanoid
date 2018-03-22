@@ -26,6 +26,7 @@ postUser:
 	ldr		r6, =ball_position
 	ldr		r7, [r6, #16]	
 
+// activate the game by pressing B:
 	teq		r7, #1				// check ball active flag
 	bleq	UpdateBall			// update position if 1
 	beq		done
@@ -36,86 +37,13 @@ postUser:
 done:	
 	pop		{r4-r8, pc}
 
-@ Shift the paddle's x coordinate
-@  r0 - SNES button register 
-@  r1 - moving RIGHT flag
-@
-UpdatePaddle:
-	push	{r4-r7, lr}
-	
-	ldr		r4, =paddle_position
-	ldr		r5, [r4]			// x coord
-	
-	mov		r6, #1				// default paddle shift amount
-	
-	tst		r0, #(1<<3)			// mask for A
-	addeq	r6, #2				// accelerate paddle if A is pressed
-
-// Don't let the paddle exit the play area!	
-	cmp		r1, #1				// check moving RIGHT flag
-	beq		moveRight
-	
-	sub		r0, r5, r6
-	cmp		r0, #672			// moving left
-LEFTC:
-	bls		skipMove
-	sub		r5, r6				// move left
-	b		storeMove
-	
-moveRight:
-	mov		r7, r5
-	add		r7, #96
-	add		r7, r6				// account for speed!
-	cmp		r7, #1152
-	bhi		skipMove
-	add		r5, r6				// move right
-
-storeMove:
-	str		r5, [r4]
-skipMove:
-	pop		{r4-r7, pc}
-	
-@ 
-@ Update the x & y coordinates of the ball based on its current direction
-@
-UpdateBall:
-	ldr		r3, =ball_position
-	ldr		r0, [r3, #12]	// get the ball's direction
-	ldr		r1, [r3]		// x coord
-	ldr		r2, [r3, #4]	// y coord
-
-	teq		r0, #1			// NW?
-	subeq	r1, #1
-	subeq	r2, #1
-	beq		updated
-	
-	teq		r0, #2			// NE?
-	addeq	r1, #1
-	subeq	r2, #1
-	beq		updated
-	
-	teq		r0, #3			// SE?
-	addeq	r1, #1
-	addeq	r2, #1
-	beq		updated
-	
-	sub	r1, #1				// SW			
-	add	r2, #1
-
-updated:
-	str		r1, [r3]		// update x
-	str		r2, [r3, #4]	// update y
-	bl		CheckCollision
-		
-	bx		lr
-
 @ Check for collisions with walls & bricks
 @  r1 - ball x
 @  r2 - ball y
 CheckCollision:
 	push	{r4-r8, lr}
 
-@ determine if the ball is going NE or SE
+// determine if the ball is going NE or SE
 	ldr		r4, =ball_position
 	ldr		r5, [r4, #12]	// direction
 	
@@ -242,5 +170,75 @@ CheckPaddle:
 endCP:
 	pop		{r4-r8, pc}
 
+@ Shift the paddle's x coordinate
+@  r0 - SNES button register 
+@  r1 - moving RIGHT flag
+@
+UpdatePaddle:
+	push	{r4-r7, lr}
+	
+	ldr		r4, =paddle_position
+	ldr		r5, [r4]			// x coord
+	
+	mov		r6, #1				// default paddle shift amount
+	
+	tst		r0, #(1<<3)			// mask for A
+	addeq	r6, #2				// accelerate paddle if A is pressed
 
+// Don't let the paddle exit the play area!	
+	cmp		r1, #1				// check moving RIGHT flag
+	beq		moveRight
+	
+	sub		r0, r5, r6			// moving left (accounting for speed)
+	cmp		r0, #672			// check left boundary
+	bls		skipMove
+	sub		r5, r6				// move left
+	b		storeMove
+	
+moveRight:
+	mov		r7, r5
+	add		r7, #96
+	add		r7, r6				// account for speed!
+	cmp		r7, #1152			// check right boundary
+	bhi		skipMove
+	add		r5, r6				// move right
+
+storeMove:
+	str		r5, [r4]
+skipMove:
+	pop		{r4-r7, pc}
+	
+@ 
+@ Update the x & y coordinates of the ball based on its current direction
+@
+UpdateBall:
+	ldr		r3, =ball_position
+	ldr		r0, [r3, #12]	// get the ball's direction
+	ldr		r1, [r3]		// x coord
+	ldr		r2, [r3, #4]	// y coord
+
+	teq		r0, #1			// NW?
+	subeq	r1, #1
+	subeq	r2, #1
+	beq		updated
+	
+	teq		r0, #2			// NE?
+	addeq	r1, #1
+	subeq	r2, #1
+	beq		updated
+	
+	teq		r0, #3			// SE?
+	addeq	r1, #1
+	addeq	r2, #1
+	beq		updated
+	
+	sub	r1, #1				// SW			
+	add	r2, #1
+
+updated:
+	str		r1, [r3]		// update x
+	str		r2, [r3, #4]	// update y
+	bl		CheckCollision
+		
+	bx		lr
 

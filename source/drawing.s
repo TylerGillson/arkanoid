@@ -28,7 +28,7 @@ DrawObjects:
 @  r0 - x
 @  r1 - y
 @  r2 - colour
-
+@
 DrawPixel:
 	push	{r4-r8, lr}
 	offset	.req	r4
@@ -57,10 +57,11 @@ skipPixel:
 	pop		{r4-r8, pc}
 // END DRAW PIXEL
 
-@ Draw Image
+@ Draw an image whose dimensions are stored in the width & height globals
 @  r0 - address of image data
 @  r1 - x
 @  r2 - y
+@
 .global DrawImage
 DrawImage:
 	push	{r4, r5, r6, r7, r8, r9, lr}
@@ -103,3 +104,45 @@ drawRow:
 	.unreq	y
 	pop		{r4, r5, r6, r7, r8, r9, pc}
 // END DRAW IMAGE
+
+@
+@ Initialize image width & height for drawing the ball 
+@
+.global InitDrawBall
+InitDrawBall:
+	ldr		r0, =width
+	mov		r1, #32
+	str		r1, [r0]
+	
+	ldr		r0,	=height
+	mov		r1, #32
+	str		r1, [r0]
+	bx		lr
+
+@
+@ Initialize image width & height for drawing the paddle 
+@
+.global InitDrawPaddle
+InitDrawPaddle:
+	ldr		r0, =width
+	mov		r1, #96
+	str		r1, [r0]
+	
+	ldr		r0,	=height
+	mov		r1, #21
+	str		r1, [r0]
+	bx		lr
+
+@
+@ Initialize image width & height for drawing a tile 
+@
+.global InitDrawTile
+InitDrawTile:
+	ldr		r0, =width
+	mov		r1, #48
+	str		r1, [r0]
+	
+	ldr		r0,	=height
+	mov		r1, #32
+	str		r1, [r0]
+	bx		lr

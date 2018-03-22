@@ -31,7 +31,7 @@ nav:
 selectStart:
 	bl		DrawHomeScreen
 	mov		r1, #759
-	mov		r2, #523
+	mov		r2, #523				// location of play option
 	bl		DrawMenuSelection
 	mov		menu_option, #1
 	b		waitLoop
@@ -39,7 +39,7 @@ selectStart:
 selectQuit:
 	bl		DrawHomeScreen
 	mov		r1, #759
-	mov		r2, #643
+	mov		r2, #643				// location of quit option
 	bl		DrawMenuSelection
 	mov		menu_option, #0
 	b		waitLoop
@@ -48,7 +48,7 @@ selectQuit:
 	pop		{r4, pc}
 
 @
-@ Initialize the game map and draw it to the screen.
+@ Initialize the game map tiles and draw them to the screen.
 @ Then draw the paddle and the ball.
 @
 InitGame:
@@ -92,7 +92,8 @@ white_row:
 	pop		{r4-r6, pc}
 // END INIT GAME
 
-@ TODO: DRAW BLACK over everything?
+@
+@ Draw a black rectangle overtop of the game screen and loop forever
 @
 QuitGame:
 	bl		DrawBlackScreen
