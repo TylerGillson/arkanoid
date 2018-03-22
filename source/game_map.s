@@ -1,5 +1,22 @@
 @ Clear necessary tiles
 @
+.global DrawScoreLives
+DrawScoreLives:
+	push	{r4, r5, lr}
+	ldr		r0, =score_bar
+	mov		r1, #624
+	mov		r2, #828
+	
+	ldr		r4, =width
+	mov		r5, #576
+	str		r5, [r4]
+	
+	ldr		r4, =height
+	mov		r5, #45
+	str		r5, [r4]
+	bl		DrawImage
+	pop		{r4, r5, pc}
+
 .global Clear
 Clear:
 	push	{r4-r10, lr}
