@@ -18,7 +18,7 @@ Update:
 	moveq	r1, #0				// clear moving RIGHT flag (b/c moving LEFT)
 	bleq	UpdatePaddle
 
-// IMPLEMENT ME!	
+// IMPLEMENT ME!
 //	teq		r5, #9				// Start was pressed
 //	bleq	InitPauseMenu
 	
@@ -28,7 +28,7 @@ postUser:
 
 // activate the game by pressing B:
 	teq		r7, #1				// check ball active flag
-	bleq	UpdateBall			// update position if 1
+	bleq	CheckCollision		// update position if 1
 	beq		done
 	
 	teq		r5, #12				// If B was pressed,
@@ -37,97 +37,167 @@ postUser:
 done:	
 	pop		{r4-r8, pc}
 
+@
 @ Check for collisions with walls & bricks
-@  r1 - ball x
-@  r2 - ball y
+@
 CheckCollision:
+	push	{r4, r5, lr}
+
+	ldr		r0, =ball_position
+	ldr		r1, [r0]
+	ldr		r2, [r0, #4]
+	
+	mov		r4, r1				// save x
+	mov		r5, r2				// save y
+
+// TOP LEFT
+	ldr		r0, =top_left
+	bl		CalcCorner
+
+// TOP RIGHT
+	add		r4, #32
+	mov		r1, r4
+	mov		r2, r5
+	ldr		r0, =top_right
+	bl		CalcCorner
+
+// BOTTOM RIGHT
+	mov		r1, r4
+	add		r5, #32
+	mov		r2, r5
+	ldr		r0, =bottom_right
+	bl		CalcCorner
+
+// BOTTOM LEFT
+	sub		r4, #32
+	mov		r1, r4
+	mov		r2, r5
+	ldr		r0, =bottom_left
+	bl		CalcCorner
+	
+	bl		ProcessCollision
+	
+	pop		{r4, r5, pc}
+
+
+@ Process collisions according corner tile type
+@   - Corner data has been initialized
+@
+ProcessCollision:
 	push	{r4-r8, lr}
-
-// determine if the ball is going NE or SE
+	
 	ldr		r4, =ball_position
-	ldr		r5, [r4, #12]	// direction
-	
-	cmp		r5, #4
-	beq		getTile
-	cmp		r5, #1
-	beq		getTile
-	add		r1, #32			// If NE/SE, add 32 to ball x
+	ldr		r5, [r4, #12]		// ball direction
 
-getTile:
-	bl		CalcTile
-CHECKTILE:
-	bl		GetIndex		// r0 = tile idx
-	ldr		r4, =game_map
-	ldrb	r6, [r4, r0]	// get tile at game_map[x][y]
+// Test all four corners to determine whether the ball is entirely on the background:	
+	ldr		r0, =top_left
+	ldr		r1, [r0, #4]		// tile type
+	ldr		r6, [r4]			// ball x
+	ldr		r7, [r4, #4]		// ball y
+	teq		r1, #0
+	bhi		checkBrickOrWall
 	
-	teq		r6, #0			// is ball on the background?
-	bne		checkBrickOrWall
+	ldr		r0, =top_right
+	ldr		r1, [r0, #4]		// tile type
+	add		r6, #32
+	teq		r1, #0
+	bhi		checkBrickOrWall
 	
-	mov		r0, r5			// pass direction as a param	
-	bl		CheckPaddle		// if on background, check for paddle collisions
+	ldr		r0, =bottom_right
+	ldr		r1, [r0, #4]		// tile type
+	add		r7, #32
+	teq		r1, #0
+	bhi		checkBrickOrWall
+	
+	ldr		r0, =bottom_left
+	ldr		r1, [r0, #4]		// tile type
+	sub		r6, #32
+	teq		r1, #0
+	bhi		checkBrickOrWall
 
-	teq		r1, #1			// is the ball hitting the paddle?
-	bne		endCol			// if not, skip the rest
-	
-	mov		r5, r0			// if yes, get new direction
-	b		store			// and update
+// Ball is entirely on the background:	
+	mov		r0, r5				// pass direction as a param	
+	bl		CheckPaddle			// check for paddle collisions
+	teq		r1, #1				// is the ball hitting the paddle?
+	bne		endCol				// if not, skip the rest
+	mov		r5, r0				// if yes, get new direction
+	b		store				// and update
 
 checkBrickOrWall:	
-	teq		r6, #1			// ball is on the wall
-	moveq	r8, #0			// clear "hitting brick" flag
-	beq		hitWall
-
-	cmp		r6, #1
-	bhi		hitBrick
-
-	b		endCol			
+	teq		r1, #1				// ball is colliding with a wall
+	beq		hitWall		
 
 hitBrick:
-	mov		r1, #0
-	str		r1, [r4, r0]
-	mov		r8, #1			// set "hitting brick" flag
+	ldr		r4, =game_map
+	ldr		r1, [r0]			// tile index
+	mov		r3, #0				
+	strb	r3, [r4, r1]		// make current tile a background tile
+	
+	bl		InitDrawTile
+	mov		r1, r6
+	mov		r2, r7
+	bl		CalcTile
+	bl		DrawTile
 	
 hitWall:
-	ldr		r4, =ball_position
-	ldr		r5, [r4, #12]	// Get ball direction	
-	ldr		r7, [r4, #4]	// Get ball y
-	
 	teq		r5,	#4
-	subeq	r5, #1			// If direction=4 (SW), set to 3 (SE) 
+	subeq	r5, #1				// If direction=4 (SW), set to 3 (SE) 
 	beq		store
 	
 	teq		r5,	#3
-	addeq	r5, #1			// If direction=3 (SE), set to 3 (SW) 
+	addeq	r5, #1				// If direction=3 (SE), set to 3 (SW) 
 	beq		store
 	
-	teq		r5, #2			// If direction=2 (NE),
+	teq		r5, #2				// Check for NE vs. NW
 	bne		northwest
-northeast:
-	teq		r8, #1			// HITTING BRICK OVERRIDE
-	addeq	r5, #1
-	beq		store 
+
+northeast:						// If direction=2 (NE),
+	ldr		r0, =top_right
+	ldr		r1, =bottom_right
+	ldr		r2, [r0, #4]		// TR tile type
+	ldr		r3, [r1, #4]		// BR tile type
 	
-	cmp		r7, #188		// Hitting the ceiling?
-	subhi	r5, #1			// NE --> NW (hitting the wall)
-	addls	r5, #1			// NE --> SE (hitting the ceiling)
+	cmp		r3, #1				// Is the bottom right corner on a wall?
+	subeq	r5, #1				// NE --> NW (hitting the wall)
+	addne	r5, #1				// NE --> SE (hitting the ceiling)
 	b		store
 	
-northwest:	
-	teq		r8, #1			// HITTING BRICK OVERRIDE
-	addeq	r5, #3
-	beq		store 
+northwest:						// If direction=1 (NW),
+	ldr		r0, =top_left
+	ldr		r1, =bottom_left
+	ldr		r2, [r0, #4]		// TL tile type
+	ldr		r3, [r1, #4]		// BL tile type
 	
-	cmp		r7, #188		// Hitting the ceiling?
-	addhi	r5, #1			// NW --> NE (hitting the wall)
-	addls	r5, #3			// NW --> SW (hitting the ceiling)
+	cmp		r3, #1				// Is the bottom left corner on a wall?
+	addeq	r5, #1				// NW --> NE (hitting the wall)
+	addne	r5, #3				// NW --> SW (hitting the ceiling)
 
 store:
 	ldr		r4, =ball_position
-	str		r5, [r4, #12]	// save new direction
+	str		r5, [r4, #12]		// save new direction
+endCol:
 	bl		UpdateBall
-endCol:	
 	pop		{r4-r8, pc}
 	
+@ Calculate & store the tile type & index for a corner of the ball
+@  r0 - corner data location
+@  r1 - ball x
+@  r2 - ball y
+@
+CalcCorner:
+	push 	{r4, lr}
+
+	mov		r4, r0
+	bl		CalcTile
+	bl		GetIndex			// r0 = tile idx
+
+	str		r0, [r4]			// save tile idx
+	ldr		r3, =game_map
+	ldrb	r2, [r3, r0]		// get tile type
+	str		r2, [r4, #4]		// save tile type
+	
+	pop		{r4, pc}
+		
 @ Test if the ball is colliding with the paddle + update its direction
 @  r0 - direction  
 @
@@ -212,6 +282,7 @@ skipMove:
 @ Update the x & y coordinates of the ball based on its current direction
 @
 UpdateBall:
+
 	ldr		r3, =ball_position
 	ldr		r0, [r3, #12]	// get the ball's direction
 	ldr		r1, [r3]		// x coord
@@ -238,7 +309,6 @@ UpdateBall:
 updated:
 	str		r1, [r3]		// update x
 	str		r2, [r3, #4]	// update y
-	bl		CheckCollision
 		
 	bx		lr
 

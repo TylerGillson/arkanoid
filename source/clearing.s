@@ -13,7 +13,7 @@ ClearObjects:
 	mov		r7, r2				// save ball y
 	
 	bl		CalcTile
-TOPLEFT:
+//TOPLEFT:
 	bl		DrawTile
 
 	mov		r1, r6
@@ -21,38 +21,38 @@ TOPLEFT:
 	mov		r2, r7
 	add		r2, #8
 	bl		CalcTile
-LL1:
+//LL1:
 	bl		DrawTile
-
+	
 	mov		r1, r6
 	sub		r1, #16
 	mov		r2, r7
 	add		r2, #24
 	bl		CalcTile
-LL2:
+//LL2:
 	bl		DrawTile
-	
+
 	mov		r1, r6
 	add		r1, #8
 	mov		r2, r7
 	sub		r2, #16
 	bl		CalcTile
-UU1:
+//UU1:
 	bl		DrawTile
-
+	
 	mov		r1, r6
 	add		r1, #24
 	mov		r2, r7
 	sub		r2, #16
 	bl		CalcTile
-UU2:
+//UU2:
 	bl		DrawTile
 
 	mov		r1, r6
 	add		r1, #32
 	mov		r2, r7
 	bl		CalcTile
-TOPRIGHT:
+//TOPRIGHT:
 	bl		DrawTile
 
 	mov		r1, r6
@@ -60,14 +60,14 @@ TOPRIGHT:
 	mov		r2, r7
 	add		r2, #32
 	bl		CalcTile
-BOTTOMRIGHT:
+//BOTTOMRIGHT:
 	bl		DrawTile
 
 	mov		r1, r6
 	mov		r2, r7
 	add		r2, #32
 	bl		CalcTile
-BOTTOMLEFT:
+//BOTTOMLEFT:
 	bl		DrawTile
 
 // CLEAR THE PADDLE
@@ -87,9 +87,9 @@ BOTTOMLEFT:
 	bl		DrawTile			// LEFT
 	
 	mov		r1, r6
-	add		r1, #96
+	add		r1, #100
 	mov		r2, r7
 	bl		CalcTile
 	bl		DrawTile			// TOP RIGHT
-
+	
 	pop		{r4-r10, pc}
