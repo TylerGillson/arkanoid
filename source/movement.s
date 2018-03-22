@@ -9,60 +9,66 @@ Update:
 	mov		r4, r0
 	mov		r5, r1
 	
-	teq		r5, #1			// RIGHT was pressed
+	tst		r0, #1				// mask for RIGHT
+	moveq	r1, #1				// set moving RIGHT flag
 	bleq	UpdatePaddle
 	beq		postUser
 	
-	teq		r5, #2			// LEFT was pressed
+	tst		r0, #(1<<1)			// mask for LEFT
+	moveq	r1, #0				// clear moving RIGHT flag (b/c moving LEFT)
 	bleq	UpdatePaddle
 
 // IMPLEMENT ME!	
-//	teq		r5, #9			// Start was pressed
-//	bleq	InitMenu
+//	teq		r5, #9				// Start was pressed
+//	bleq	InitPauseMenu
 	
 postUser:
 	ldr		r6, =ball_position
 	ldr		r7, [r6, #16]	
 
-	teq		r7, #1			// check ball active flag
-	bleq	UpdateBall		// update position if 1
+	teq		r7, #1				// check ball active flag
+	bleq	UpdateBall			// update position if 1
 	beq		done
 	
-	teq		r5, #12			// If B was pressed,
+	teq		r5, #12				// If B was pressed,
 	moveq	r7, #1			
-	streq	r7, [r6, #16]	// set ball active flag
+	streq	r7, [r6, #16]		// set ball active flag
 done:	
 	pop		{r4-r8, pc}
 
 @ Shift the paddle's x coordinate
 @  r0 - SNES button register 
-@  r1 - SNES button code
+@  r1 - moving RIGHT flag
 @
 UpdatePaddle:
 	push	{r4-r7, lr}
 	
 	ldr		r4, =paddle_position
-	ldr		r5, [r4]		// x coord
+	ldr		r5, [r4]			// x coord
 	
-	mov		r6, #1			// paddle shift amount
-	tst		r0, #(1<<4)		// check 'A' bit
-	addeq	r6, #5			// accelerate paddle if A is pressed
+	mov		r6, #1				// default paddle shift amount
+	
+	tst		r0, #(1<<3)			// mask for A
+	addeq	r6, #2				// accelerate paddle if A is pressed
 
 // Don't let the paddle exit the play area!	
-	cmp		r1, #1
+	cmp		r1, #1				// check moving RIGHT flag
 	beq		moveRight
 	
-	cmp		r5, #672		// moving left
-	beq		skipMove
-	sub		r5, r6			// move left
+	sub		r0, r5, r6
+	cmp		r0, #672			// moving left
+LEFTC:
+	bls		skipMove
+	sub		r5, r6				// move left
 	b		storeMove
 	
 moveRight:
 	mov		r7, r5
 	add		r7, #96
+	add		r7, r6				// account for speed!
 	cmp		r7, #1152
-	beq		skipMove
-	add		r5, r6			// move right
+	bhi		skipMove
+	add		r5, r6				// move right
 
 storeMove:
 	str		r5, [r4]

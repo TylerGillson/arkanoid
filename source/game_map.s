@@ -124,9 +124,7 @@ CalcTile:
 	udiv	r1, r4				// r1 = col idx
 	
 	sub		r2, #156
-	mov		r4, #32
-	udiv	r2, r4
-	mov		r0, r2				// r0 = row idx
+	asr		r0, r2, #5			// r0 = row idx
 
 	pop		{r4, r5, pc}
 
