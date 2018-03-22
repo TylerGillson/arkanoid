@@ -3,15 +3,15 @@
 DrawHomeScreen:
 	push	{r4, r5, lr}
 	ldr		r0, =home_screen
-	mov		r1, #608
-	mov		r2, #133
+	mov		r1, #624
+	mov		r2, #156
 	
 	ldr		r4, =width
-	mov		r5, #608
+	mov		r5, #480
 	str		r5, [r4]
 	
 	ldr		r4,	=height
-	mov		r5, #500
+	mov		r5, #640
 	str		r5, [r4]
 	bl		DrawImage
 	pop		{r4, r5, pc}
@@ -31,4 +31,22 @@ DrawMenuSelection:
 	str		r5, [r4]
 	bl		DrawImage
 	
+	pop		{r4, r5, pc}
+	
+@ Draw the black screen image
+.global DrawBlackScreen
+DrawBlackScreen:
+	push	{r4, r5, lr}
+	ldr		r0, =black_screen
+	mov		r1, #624
+	mov		r2, #156
+	
+	ldr		r4, =width
+	mov		r5, #480
+	str		r5, [r4]
+	
+	ldr		r4,	=height
+	mov		r5, #640
+	str		r5, [r4]
+	bl		DrawImage
 	pop		{r4, r5, pc}

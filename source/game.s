@@ -30,16 +30,16 @@ nav:
 
 selectStart:
 	bl		DrawHomeScreen
-	mov		r1, #811
-	mov		r2, #361
+	mov		r1, #759
+	mov		r2, #523
 	bl		DrawMenuSelection
 	mov		menu_option, #1
 	b		waitLoop
 
 selectQuit:
 	bl		DrawHomeScreen
-	mov		r1, #811
-	mov		r2, #481
+	mov		r1, #759
+	mov		r2, #643
 	bl		DrawMenuSelection
 	mov		menu_option, #0
 	b		waitLoop
@@ -76,7 +76,7 @@ sides:
 	
 @ Put in a row of white blocks
 	ldr		r4, =game_map
-	add		r4, #13				// skip the first 12 blocks
+	add		r4, #73				// skip the first 12 blocks
 	mov		r5, #0
 	mov		r6, #2				// white block code
 white_row:
@@ -95,4 +95,5 @@ white_row:
 @ TODO: DRAW BLACK over everything?
 @
 QuitGame:
+	bl		DrawBlackScreen
 	b		QuitGame

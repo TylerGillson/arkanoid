@@ -121,6 +121,7 @@ CheckCollision:
 
 getTile:
 	bl		CalcTile
+CHECKTILE:
 	bl		GetIndex		// r0 = tile idx
 	ldr		r4, =game_map
 	ldrb	r6, [r4, r0]	// get tile at game_map[x][y]
@@ -216,14 +217,16 @@ CheckPaddle:
 	movne	r1, #0
 	bne		endCP			// no collision
 	
-	cmp		r5, r7			// check ball left of paddle
-	movls	r1, #0
-	bls		endCP
-	
 	add		r7, #96
 	cmp		r5, r7			// check ball right of paddle
 	movhi	r1, #0
 	bhi		endCP
+	
+	add		r5, #32
+	sub		r7, #96
+	cmp		r5, r7			// check ball left of paddle
+	movls	r1, #0
+	bls		endCP
 	
 	teq		r0, #3			// 3=SE, 4=SW
 	subeq	r0, #1			// If SE, set to NE
