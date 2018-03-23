@@ -7,11 +7,11 @@ DrawHomeScreen:
 	mov		r2, #156
 	
 	ldr		r4, =width
-	mov		r5, #480
+	mov		r5, #576
 	str		r5, [r4]
 	
 	ldr		r4,	=height
-	mov		r5, #640
+	mov		r5, #672
 	str		r5, [r4]
 	bl		DrawImage
 	pop		{r4, r5, pc}
@@ -42,11 +42,11 @@ DrawBlackScreen:
 	mov		r2, #156
 	
 	ldr		r4, =width
-	mov		r5, #480
+	mov		r5, #576
 	str		r5, [r4]
 	
 	ldr		r4,	=height
-	mov		r5, #640
+	mov		r5, #672
 	str		r5, [r4]
 	bl		DrawImage
 	pop		{r4, r5, pc}

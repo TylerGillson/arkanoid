@@ -30,16 +30,16 @@ nav:
 
 selectStart:
 	bl		DrawHomeScreen
-	mov		r1, #759
-	mov		r2, #523				// location of play option
+	mov		r1, #808
+	mov		r2, #541				// location of play option
 	bl		DrawMenuSelection
 	mov		menu_option, #1
 	b		waitLoop
 
 selectQuit:
 	bl		DrawHomeScreen
-	mov		r1, #759
-	mov		r2, #643				// location of quit option
+	mov		r1, #808
+	mov		r2, #661				// location of quit option
 	bl		DrawMenuSelection
 	mov		menu_option, #0
 	b		waitLoop
