@@ -43,7 +43,6 @@ frameBufferInfo:
 // block:			48  x 32
 // wall:			48  x 32
 // background:		48  x 32
-
 // game play area:	480 x 640
 // n = 12, m = 21, making a 252 cell grid
 
@@ -71,7 +70,7 @@ ball_position:
 .int	880			// grid x origin + 256
 .int	667			// grid x origin + 512
 .int	0			// angle (0=45 degrees, 1=60 degrees)
-.int	1			// direction (1-4: 1=NW, 2=NE, 3=SE, 4=SW)
+.int	2			// direction (1-4: 1=NW, 2=NE, 3=SE, 4=SW)
 .int	0			// ball is active flag
 
 .global score

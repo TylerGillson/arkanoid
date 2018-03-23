@@ -28,9 +28,11 @@ postUser:
 
 // activate the game by pressing B:
 	teq		r7, #1				// check ball active flag
-	bleq	CheckCollision		// update position if 1
-	beq		done
-	
+	bne		BCHECK
+	bl		CheckCollision		// update position if 1
+	b		done
+
+BCHECK:	
 	teq		r5, #12				// If B was pressed,
 	moveq	r7, #1			
 	streq	r7, [r6, #16]		// set ball active flag
@@ -140,14 +142,35 @@ hitBrick:
 	bl		DrawTile
 	
 hitWall:
+
 	teq		r5,	#4
-	subeq	r5, #1				// If direction=4 (SW), set to 3 (SE) 
-	beq		store
+	beq		southwest
+	bne		SECheck
 	
+southwest:
+	ldr		r0, =bottom_right
+	ldr		r1, [r0, #4]		// BR tile type
+	
+	cmp		r1, #0				// Is the bottom right corner on the background?
+	subeq	r5, #1				// SW --> SE (hitting the wall)
+	subhi	r5, #3				// SW --> NW (hitting a brick)
+	b		store
+	
+SECheck:
 	teq		r5,	#3
-	addeq	r5, #1				// If direction=3 (SE), set to 3 (SW) 
-	beq		store
+	beq		southeast
+	bne		northCheck
 	
+southeast:
+	ldr		r0, =bottom_left
+	ldr		r1, [r0, #4]		// BL tile type
+	
+	cmp		r1, #0				// Is the bottom left corner on the background?
+	addeq	r5, #1				// SE --> SW (hitting the wall)
+	subhi	r5, #1				// SE --> NE (hitting a brick)
+	b		store
+	
+northCheck:	
 	teq		r5, #2				// Check for NE vs. NW
 	bne		northwest
 
@@ -159,7 +182,7 @@ northeast:						// If direction=2 (NE),
 	
 	cmp		r3, #1				// Is the bottom right corner on a wall?
 	subeq	r5, #1				// NE --> NW (hitting the wall)
-	addne	r5, #1				// NE --> SE (hitting the ceiling)
+	addne	r5, #1				// NE --> SE (hitting a brick/ceiling)
 	b		store
 	
 northwest:						// If direction=1 (NW),
@@ -170,7 +193,7 @@ northwest:						// If direction=1 (NW),
 	
 	cmp		r3, #1				// Is the bottom left corner on a wall?
 	addeq	r5, #1				// NW --> NE (hitting the wall)
-	addne	r5, #3				// NW --> SW (hitting the ceiling)
+	addne	r5, #3				// NW --> SW (hitting a brick/ceiling)
 
 store:
 	ldr		r4, =ball_position
@@ -231,14 +254,53 @@ CheckPaddle:
 	cmp		r5, r7			// check ball left of paddle
 	movls	r1, #0
 	bls		endCP
+
+// UPDATE ANGLE BASED ON CONTACT LOCATION:	
+	mov		r6, r0			// save ball direction
+
+PCHECK:	
+	sub		r5, #16
+	add		r7, #72
+	cmp		r5, r7
+	bls		notFarRight
 	
-	teq		r0, #3			// 3=SE, 4=SW
-	subeq	r0, #1			// If SE, set to NE
-	subne	r0, #3			// If SW, set to NW
-	mov		r1, #1
+	mov		r0, #1			// 60 degrees
+	bl		UpdateAngle
+	b		changeDirection
+
+notFarRight:
+	sub		r7, #48
+	cmp		r5, r7			// is the ball hitting the far left side? 
+	bhi		inside
+	
+	mov		r0, #1			// 60 degrees
+	bl		UpdateAngle
+	b		changeDirection
+
+inside:	
+	mov		r0, #0			// 45 degrees
+	bl		UpdateAngle
+
+changeDirection:
+	teq		r6, #3			// 3=SE, 4=SW
+	subeq	r6, #1			// If SE, set to NE
+	subne	r6, #3			// If SW, set to NW
+	mov		r0, r6
+	mov		r1, #1			// set ball was hit flag
 	
 endCP:
 	pop		{r4-r8, pc}
+
+@ Update the ball's angle
+@   r0 - angle flag
+@
+UpdateAngle:
+	ldr		r1, =ball_position
+	teq		r0, #1			// check angle flag
+	moveq	r2, #1			// angle = 60 degrees
+	movne	r2, #0			// angle = 45 degrees
+	str		r2, [r1, #8]
+	bx		lr
 
 @ Shift the paddle's x coordinate
 @  r0 - SNES button register 
@@ -282,33 +344,48 @@ skipMove:
 @ Update the x & y coordinates of the ball based on its current direction
 @
 UpdateBall:
-
+	push	{r4, lr}
+	
 	ldr		r3, =ball_position
 	ldr		r0, [r3, #12]	// get the ball's direction
 	ldr		r1, [r3]		// x coord
 	ldr		r2, [r3, #4]	// y coord
+	ldr		r4, [r3, #8]	// angle
 
 	teq		r0, #1			// NW?
-	subeq	r1, #1
-	subeq	r2, #1
-	beq		updated
-	
+	bne		updateNE
+	sub		r1, #1
+	teq		r4, #1
+	subeq	r2, #2
+	subne	r2, #1
+	b		updated
+
+updateNE:	
 	teq		r0, #2			// NE?
-	addeq	r1, #1
-	subeq	r2, #1
-	beq		updated
-	
+	bne		updateSE
+	add		r1, #1
+	teq		r4, #1
+	subeq	r2, #2
+	subne	r2, #1
+	b		updated
+
+updateSE:	
 	teq		r0, #3			// SE?
-	addeq	r1, #1
-	addeq	r2, #1
-	beq		updated
-	
-	sub	r1, #1				// SW			
-	add	r2, #1
+	bne		updateSW
+	add		r1, #1
+	teq		r4, #1
+	addeq	r2, #2
+	addne	r2, #1
+	b		updated
+
+updateSW:
+	sub		r1, #1			// SW			
+	teq		r4, #1
+	addeq	r2, #2
+	addne	r2, #1
 
 updated:
 	str		r1, [r3]		// update x
 	str		r2, [r3, #4]	// update y
 		
-	bx		lr
-
+	pop		{r4, pc}

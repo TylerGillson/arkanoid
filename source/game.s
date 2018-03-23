@@ -84,6 +84,16 @@ white_row:
 	add		r5, #1
 	cmp		r5, #10
 	blt		white_row
+	
+@ Put in a row of white blocks
+	sub		r4, #58				// skip the first 12 blocks
+	mov		r5, #0
+	mov		r6, #2				// white block code
+white_row2:
+	strb	r6, [r4], #1
+	add		r5, #1
+	cmp		r5, #10
+	blt		white_row2
 
 @ Draw the contents of the game map
 	bl		DrawMap				// (game_map.s)	
