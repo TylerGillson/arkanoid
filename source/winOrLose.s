@@ -74,7 +74,7 @@ drawWinOrLose:
 	cmp		r5, #1				// if win flag = 1
 	//reset win flag		
 	ldreq	r4, =win			// then set win flag to default 0
-	move1 	r5, #0
+	moveq 	r5, #0
 	streq	r5, [r4]
 	bleq	drawWinScreen		// draw screen with winning message
 	beq		winOrLoseBackToMain	// if player press any button, return to the main menu

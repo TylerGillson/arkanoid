@@ -28,24 +28,26 @@ GameLoop:
 	bl		drawWinOrLose
 	// then quit game
 
-	
-	mov		r0, #5000
+	ldr		r0, =value_pack1
+	ldr		r1, [r0, #12]
+	teq		r1, #1
+	movne		r0, #5000
+	moveq		r0, #8000
 	bl		delayMicroseconds
 	b		GameLoop
-
 
 .global PauseScreen
 PauseScreen:
 	
 	bl		DrawPauseScreen
-	mov		r0, #60000	
+	mov		r0,	 #60000
 	bl		delayMicroseconds
 	b		pauseSelectRestart		
 	
 pauseWaitLoop:
 	bl		ReadSNES
 	
-continueGame:
+continueGame:	
 	teq		r1, #9
 	bleq	InitGame
 	beq		GameLoop				// begin the main game loop (main.s)
@@ -54,8 +56,7 @@ pauseInput:
 	teq		r1, #4
 	bne		pauseNav
 	beq		aPressed
-	
-	
+		
 pauseNav:
 	teq		r1, #7
 	beq		pauseSelectQuit
@@ -75,11 +76,7 @@ pauseSelectQuit:
 	mov		r6, #0
 	b		pauseWaitLoop
 	
-	
-	
-aPressed:
-
-	
+aPressed:	
 	cmp		r6, #1
 	bleq	InitGame
 	bl		resetBallPaddle			
@@ -111,9 +108,7 @@ resetBallPaddle:
 	str r7, [r5, #16]
 	
 	pop	{r5, r7, pc}
-	
-	
-	
+		
 quitToMainScreen:
 	push	{r4, lr}
 	
@@ -176,6 +171,8 @@ frameBufferInfo:
 // block:			48  x 32
 // wall:			48  x 32
 // background:		48  x 32
+// value pack:		40  x 15
+// game lost/won:	450 x 300
 // game play area:	480 x 640
 // n = 12, m = 21, making a 252 cell grid
 
@@ -222,6 +219,25 @@ win:
 lose:
 .int	0			// lose flag
 
+.global value_pack1
+value_pack1:
+.int	6			// row index
+.int	9			// column index
+.int	0			// falling? (0=no, 1=yes)
+.int	0			// effect enabled? (0=no, 1=yes)
+.int	0			// x
+.int	0			// y
+
+.global value_pack2
+value_pack2:
+.int	6			// row index
+.int	5			// column index
+.int	0			// falling? (0=no, 1=yes)
+.int	0			// effect enabled? (0=no, 1=yes)
+.int	0			// x
+.int	0			// y
+
+// USED FOR COLLISION CALCULATIONS
 .global top_left
 top_left:
 .int	0			// tile index
