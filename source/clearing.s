@@ -92,4 +92,47 @@ ClearObjects:
 	bl		CalcTile
 	bl		DrawTile			// TOP RIGHT
 	
+	bl		ClearValuepacks		// CLEAR VALUEPACKS
+	
 	pop		{r4-r10, pc}
+
+@
+@
+@
+.global ClearValuepacks
+ClearValuepacks:
+	push	{r4-r7, lr}
+	
+	ldr		r5,	=value_pack1
+	mov		r4, #1				// valuepack flag
+	ldr		r1, [r5, #8]
+	teq		r1, #1
+	bne		clearVP2
+	
+clearPack:
+	ldr		r1, [r5, #16]		// x
+	ldr		r2, [r5, #20]		// y
+	sub		r2, #2
+	bl		CalcTile
+	bl		DrawTile
+	
+	ldr		r1, [r5, #16]
+	ldr		r2, [r5, #20]
+	add		r2, #22
+	bl		CalcTile
+	bl		DrawTile
+	
+	teq		r4, #1
+	bne		doneClearing
+	
+clearVP2:
+	ldr		r5,	=value_pack2
+	mov		r4, #2
+	ldr		r1, [r5, #8]
+	teq		r1, #1
+	beq		clearPack
+
+doneClearing:
+	pop		{r4-r7, pc}
+	
+	

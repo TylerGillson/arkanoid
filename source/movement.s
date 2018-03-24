@@ -23,16 +23,19 @@ Update:
 //	bleq	InitPauseMenu
 	
 postUser:
+	bl		UpdateValuepacks
+	bl		CheckPaddleValuepacks
+	
 	ldr		r6, =ball_position
 	ldr		r7, [r6, #16]	
 
 // activate the game by pressing B:
 	teq		r7, #1				// check ball active flag
-	bne		BCHECK
+	bne		bCheck
 	bl		CheckCollision		// update position if 1
 	b		done
 
-BCHECK:	
+bCheck:
 	teq		r5, #12				// If B was pressed,
 	moveq	r7, #1			
 	streq	r7, [r6, #16]		// set ball active flag
@@ -129,21 +132,30 @@ checkBrickOrWall:
 	teq		r1, #1				// ball is colliding with a wall
 	beq		hitWall		
 
+// BEGIN BRICK HITTING CODE
 hitBrick:
 	ldr		r4, =game_map
 	ldr		r8, [r0]			// tile index
-	cmp		r1, #2
-	moveq	r3, #0
-	subhi	r3, r1, #1				
-	strb	r3, [r4, r8]		// make current tile a background tile
+	cmp		r1, #2				// is it a white block?
+	moveq	r3, #0				// turn white blocks into background tiles
+	subhi	r3, r1, #1			// demote non-white blocks
+	strb	r3, [r4, r8]		// update block tile in memory
 
-notWhiteBlock:
-
+// Draw new tile:
 	bl		InitDrawTile
 	mov		r1, r6
 	mov		r2, r7
 	bl		CalcTile
+	mov		r6, r0
+	mov		r7, r1
 	bl		DrawTile
+	
+// Check for valuepack
+	mov		r0, r6				// tile row idx
+	mov		r1, r7				// tile col idx
+	bl		CheckValuepack
+
+// END BRICK HITTING CODE
 	
 hitWall:
 
@@ -244,9 +256,9 @@ CheckPaddle:
 	ldr		r7, [r4]		// get paddle x
 	ldr		r8, [r4, #4]	// get paddle y
 	
-	cmp		r6, r8			// check y axis
-	movne	r1, #0
-	bne		endCP			// no collision
+	cmp		r8, r6			// check y axis
+	movhi	r1, #0
+	bhi		endCP			// no collision
 	
 	add		r7, #96
 	cmp		r5, r7			// check ball right of paddle
@@ -262,7 +274,6 @@ CheckPaddle:
 // UPDATE ANGLE BASED ON CONTACT LOCATION:	
 	mov		r6, r0			// save ball direction
 
-PCHECK:	
 	sub		r5, #16
 	add		r7, #72
 	cmp		r5, r7
@@ -393,3 +404,100 @@ updated:
 	str		r2, [r3, #4]	// update y
 		
 	pop		{r4, pc}
+
+@
+@ If a valuepack's falling attribute is enabled, update its y coordinate.
+@
+UpdateValuepacks:
+	push	{r4, lr}
+	
+	ldr		r0, =value_pack1
+	ldr		r1, [r0, #8]
+	mov		r4, #1
+	teq		r1, #1
+	bne		updateVP2
+
+updatePack:	
+	ldr		r1, [r0, #20]
+	add		r1, #1			// increment valuepack y
+	str		r1, [r0, #20]
+	
+	teq		r4, #1
+	bne		endUpdateVPs
+
+updateVP2:
+	ldr		r0, =value_pack2
+	ldr		r1, [r0, #8]
+	mov		r4, #2
+	teq		r1, #1
+	beq		updatePack
+
+endUpdateVPs:
+	pop		{r4, pc}
+
+@	
+@ Check if a valuepack is colliding with the paddle.
+@ If one is, disable its falling attribute and enable its effect attribute.
+@
+CheckPaddleValuepacks:
+	push	{r4-r8, lr}
+	
+	ldr		r4, =paddle_position
+	ldr		r5, [r4]		// get paddle x
+	ldr		r6, [r4, #4]	// get paddle y
+	
+	ldr		r0, =value_pack1
+	ldr		r1, [r0, #20]	// valuepack y
+	add		r1, #21			// bottom of the valuepack
+	mov		r8, #1
+	cmp		r6, r1			// paddle y vs. vp y
+	bhi		checkPaddleVP2
+
+checkXAxis:
+	
+	add		r5, #96
+	ldr		r4, [r0, #16]	// valuepack x
+	
+	cmp		r4, r5			// check vp right of paddle
+	bhi		doneXAxis
+	
+	add		r4, #40
+	sub		r5, #96
+	cmp		r5, r4			// check vp left of paddle
+	bhi		doneXAxis
+
+// Valuepack collision:	
+	mov		r4, r0			
+	bl		InitDrawTile
+	bl		ClearValuepacks	// clear the valuepack
+	mov		r0, r4
+	
+	mov		r1, #0
+	str		r1, [r0, #8]	// disable falling
+	mov		r1, #1
+	str		r1, [r0, #12]	// enable effect
+	
+doneXAxis:
+	teq		r8, #1
+	bne		doneCheckPaddle
+	
+checkPaddleVP2:
+	ldr		r0, =value_pack2
+	ldr		r1, [r0, #20]	// valuepack y
+	add		r1, #21			// bottom of the valuepack
+	mov		r8, #2
+	cmp		r6, r1
+	bls		checkXAxis
+
+doneCheckPaddle:
+	pop		{r4-r8, pc}
+
+
+
+
+
+
+
+
+
+

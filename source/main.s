@@ -73,7 +73,7 @@ ball_position:
 .int	880			// grid x origin + 256
 .int	667			// grid x origin + 512
 .int	0			// angle (0=45 degrees, 1=60 degrees)
-.int	2			// direction (1-4: 1=NW, 2=NE, 3=SE, 4=SW)
+.int	1			// direction (1-4: 1=NW, 2=NE, 3=SE, 4=SW)
 .int	0			// ball is active flag
 
 .global score
@@ -92,6 +92,25 @@ win:
 lose:
 .int	0			// lose flag
 
+.global value_pack1
+value_pack1:
+.int	6			// row index
+.int	9			// column index
+.int	0			// falling? (0=no, 1=yes)
+.int	0			// effect enabled? (0=no, 1=yes)
+.int	0			// x
+.int	0			// y
+
+.global value_pack2
+value_pack2:
+.int	6			// row index
+.int	5			// column index
+.int	0			// falling? (0=no, 1=yes)
+.int	0			// effect enabled? (0=no, 1=yes)
+.int	0			// x
+.int	0			// y
+
+// USED FOR COLLISION CALCULATIONS
 .global top_left
 top_left:
 .int	0			// tile index

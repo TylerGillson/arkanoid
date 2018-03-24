@@ -21,6 +21,30 @@ DrawObjects:
 	ldr		r2, [r4, #4]		// y coord	
 	bl		DrawImage	
 
+@ draw the value packs if they are falling
+	bl		InitDrawValuepack
+	
+	ldr		r3, =value_pack1
+	ldr		r1, [r3, #8]		// falling?
+	teq		r1, #1
+	bne		drawVP2
+	mov		r0, #1
+	mov		r4, #1
+	
+drawPack:
+	bl		DrawValuepack
+	teq		r4, #1
+	bne		endDrawObjects
+	
+drawVP2:
+	ldr		r3, =value_pack2
+	ldr		r1, [r3, #8]		// falling?
+	teq		r1, #1
+	moveq	r0, #2
+	moveq	r4, #2
+	beq		drawPack
+
+endDrawObjects:
 	pop		{r4-r5, pc}
 // END DRAW OBJECTS
 
@@ -105,6 +129,29 @@ drawRow:
 	pop		{r4, r5, r6, r7, r8, r9, pc}
 // END DRAW IMAGE
 
+@ Draw a value pack
+@  r0 - valuepack # flag
+@
+.global DrawValuepack
+DrawValuepack:
+	push	{r4, lr}
+	
+	mov		r4, r0
+	bl		InitDrawValuepack
+	teq		r4, #1
+	ldreq	r0, =valuepack1
+	ldreq	r3, =value_pack1
+	ldreq	r1, [r3, #16]
+	ldreq	r2, [r3, #20] 
+	
+	ldrne	r0, =valuepack2
+	ldrne	r3, =value_pack2
+	ldrne	r1, [r3, #16]
+	ldrne	r2, [r3, #20] 
+	
+	bl		DrawImage
+	pop		{r4, pc}
+
 @
 @ Initialize image width & height for drawing the ball 
 @
@@ -144,5 +191,19 @@ InitDrawTile:
 	
 	ldr		r0,	=height
 	mov		r1, #32
+	str		r1, [r0]
+	bx		lr
+
+@
+@ Initialize image width & height for drawing a valuepack 
+@
+.global InitDrawValuepack
+InitDrawValuepack:
+	ldr		r0, =width
+	mov		r1, #40
+	str		r1, [r0]
+	
+	ldr		r0,	=height
+	mov		r1, #15
 	str		r1, [r0]
 	bx		lr

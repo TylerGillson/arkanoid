@@ -18,6 +18,7 @@ input:
 	bne		nav
 	teq		menu_option, #1
 	bleq	InitGame
+	teq		menu_option, #1
 	beq		GameLoop				// begin the main game loop (main.s)
 	blne	QuitGame
 
