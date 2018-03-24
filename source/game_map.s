@@ -1,7 +1,10 @@
-@ Clear necessary tiles
+@ Draw a single tile
+@   r0 - row idx
+@   r1 - col idx
 @
-.global DrawScoreLives
-DrawScoreLives:
+
+.global DrawBottomBar
+DrawBottomBar:
 	push	{r4, r5, lr}
 	ldr		r0, =score_bar
 	mov		r1, #624
@@ -17,98 +20,34 @@ DrawScoreLives:
 	bl		DrawImage
 	pop		{r4, r5, pc}
 
-.global Clear
-Clear:
+.global DrawTile
+DrawTile:
 	push	{r4-r10, lr}
 	
-	bl		InitDrawTile
-	ldr		r4, =ball_position
-	ldr		r1, [r4]			// ball x
-	ldr		r2, [r4, #4]		// ball y
+	mov		r4, r0				// r4=row idx
+	mov		r5, r1				// r5=col idx
+	bl		GetIndex			// r0=tile offset
+
+	ldr		r6, =game_map		// pointer to game_map
+	ldrb	r7, [r6, r0]		// Load the byte for the current tile
 	
-	mov		r6, r1				// save ball x
-	mov		r7, r2				// save ball y
+	teq		r7, #0
+	ldreq	r0, =background
 	
-	bl		CalcTile
-TOPLEFT:
-	bl		DrawTile
-
-	mov		r1, r6
-	sub		r1, #16
-	mov		r2, r7
-	add		r2, #8
-	bl		CalcTile
-LL1:
-	bl		DrawTile
-
-	mov		r1, r6
-	sub		r1, #16
-	mov		r2, r7
-	add		r2, #24
-	bl		CalcTile
-LL2:
-	bl		DrawTile
+	teq		r7, #1
+	ldreq	r0, =wall
 	
-	mov		r1, r6
-	add		r1, #8
-	mov		r2, r7
-	sub		r2, #16
-	bl		CalcTile
-UU1:
-	bl		DrawTile
-
-	mov		r1, r6
-	add		r1, #24
-	mov		r2, r7
-	sub		r2, #16
-	bl		CalcTile
-UU2:
-	bl		DrawTile
-
-	mov		r1, r6
-	add		r1, #32
-	mov		r2, r7
-	bl		CalcTile
-TOPRIGHT:
-	bl		DrawTile
-
-	mov		r1, r6
-	add		r1, #32
-	mov		r2, r7
-	add		r2, #32
-	bl		CalcTile
-BOTTOMRIGHT:
-	bl		DrawTile
-
-	mov		r1, r6
-	mov		r2, r7
-	add		r2, #32
-	bl		CalcTile
-BOTTOMLEFT:
-	bl		DrawTile
-
-// CLEAR THE PADDLE
-	ldr		r4, =paddle_position
-	ldr		r1, [r4]			// paddle x
-	ldr		r2, [r4, #4]		// paddle y
-	mov		r6, r1				// save paddle x
-	mov		r7, r2				// save paddle y
+	teq		r7, #2
+	ldreq	r0, =white_block
 	
-	bl		CalcTile
-	bl		DrawTile			// TOP LEFT
+	mov		r10, #48
+	mul		r1, r5, r10			// r1 = col * 48
+	mov		r2, r4, lsl #5		// r2 = row * 32
+ 
+	add		r1, #624			// x origin offset 
+	add		r2, #156			// y origin offset
+	bl		DrawImage
 	
-	mov		r1, r6
-	sub		r1, #10
-	mov		r2, r7
-	bl		CalcTile
-	bl		DrawTile			// LEFT
-	
-	mov		r1, r6
-	add		r1, #96
-	mov		r2, r7
-	bl		CalcTile
-	bl		DrawTile			// TOP RIGHT
-
 	pop		{r4-r10, pc}
 
 @ Get an index into the game map based on col & row indices
@@ -141,86 +80,9 @@ CalcTile:
 	udiv	r1, r4				// r1 = col idx
 	
 	sub		r2, #156
-	mov		r4, #32
-	udiv	r2, r4
-	mov		r0, r2				// r0 = row idx
+	asr		r0, r2, #5			// r0 = row idx
 
 	pop		{r4, r5, pc}
-
-@ Draw a single tile
-@   r0 - row idx
-@   r1 - col idx
-DrawTile:
-	push	{r4-r10, lr}
-	
-	mov		r4, r0				// r4=row idx
-	mov		r5, r1				// r5=col idx
-	bl		GetIndex			// r0=tile offset
-
-GOTINDEX:
-
-	ldr		r6, =game_map		// pointer to game_map
-	ldrb	r7, [r6, r0]		// Load the byte for the current tile
-	
-	teq		r7, #0
-	ldreq	r0, =background
-	
-	teq		r7, #1
-	ldreq	r0, =wall
-	
-	teq		r7, #2
-	ldreq	r0, =white_block
-	
-	mov		r10, #48
-	mul		r1, r5, r10			// r1 = col * 48
-	mov		r2, r4, lsl #5		// r2 = row * 32
- 
-	add		r1, #624			// x origin offset 
-	add		r2, #156			// y origin offset
-	bl		DrawImage
-	
-	pop		{r4-r10, pc}
-
-@
-@ Initialize image width & height for drawing a tile 
-@
-InitDrawTile:
-	ldr		r0, =width
-	mov		r1, #48
-	str		r1, [r0]
-	
-	ldr		r0,	=height
-	mov		r1, #32
-	str		r1, [r0]
-	bx		lr
-
-@
-@ Initialize image width & height for drawing the ball 
-@
-.global InitDrawBall
-InitDrawBall:
-	ldr		r0, =width
-	mov		r1, #32
-	str		r1, [r0]
-	
-	ldr		r0,	=height
-	mov		r1, #32
-	str		r1, [r0]
-	bx		lr
-
-@
-@ Initialize image width & height for drawing the paddle 
-@
-.global InitDrawPaddle
-InitDrawPaddle:
-	ldr		r0, =width
-	mov		r1, #96
-	str		r1, [r0]
-	
-	ldr		r0,	=height
-	mov		r1, #21
-	str		r1, [r0]
-	bx		lr
 	
 @ 
 @ Draw each tile in the game map according to its encoding
