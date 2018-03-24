@@ -85,15 +85,25 @@ white_row:
 	cmp		r5, #10
 	blt		white_row
 	
-@ Put in a row of white blocks
-	sub		r4, #58				// skip the first 12 blocks
+@ Put in a row of gold blocks
+	sub		r4, #58				
 	mov		r5, #0
-	mov		r6, #2				// white block code
-white_row2:
+	mov		r6, #4				// gold block code
+gold_row:
 	strb	r6, [r4], #1
 	add		r5, #1
 	cmp		r5, #10
-	blt		white_row2
+	blt		gold_row
+
+@ Put in a row of red blocks
+	add		r4, #14				
+	mov		r5, #0
+	mov		r6, #3				// red block code
+red_row:
+	strb	r6, [r4], #1
+	add		r5, #1
+	cmp		r5, #10
+	blt		red_row
 
 @ Draw the contents of the game map
 	bl		DrawMap				// (game_map.s)	

@@ -43,6 +43,9 @@ frameBufferInfo:
 // block:			48  x 32
 // wall:			48  x 32
 // background:		48  x 32
+// value pack:		40  x 15
+// game lost/won:	450 x 300
+
 // game play area:	480 x 640
 // n = 12, m = 21, making a 252 cell grid
 

@@ -22,6 +22,12 @@ DrawTile:
 	teq		r7, #2
 	ldreq	r0, =white_block
 	
+	teq		r7, #3
+	ldreq	r0, =red_block
+	
+	teq		r7, #4
+	ldreq	r0, =gold_block
+	
 	mov		r10, #48
 	mul		r1, r5, r10			// r1 = col * 48
 	mov		r2, r4, lsl #5		// r2 = row * 32

@@ -131,10 +131,14 @@ checkBrickOrWall:
 
 hitBrick:
 	ldr		r4, =game_map
-	ldr		r1, [r0]			// tile index
-	mov		r3, #0				
-	strb	r3, [r4, r1]		// make current tile a background tile
-	
+	ldr		r8, [r0]			// tile index
+	cmp		r1, #2
+	moveq	r3, #0
+	subhi	r3, r1, #1				
+	strb	r3, [r4, r8]		// make current tile a background tile
+
+notWhiteBlock:
+
 	bl		InitDrawTile
 	mov		r1, r6
 	mov		r2, r7
