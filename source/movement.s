@@ -17,10 +17,9 @@ Update:
 	tst		r0, #(1<<1)			// mask for LEFT
 	moveq	r1, #0				// clear moving RIGHT flag (b/c moving LEFT)
 	bleq	UpdatePaddle
-
-// IMPLEMENT ME!
-//	teq		r5, #9				// Start was pressed
-//	bleq	InitPauseMenu
+	
+	teq		r1, #9
+	beq		PauseScreen
 	
 postUser:
 	ldr		r6, =ball_position
@@ -31,11 +30,14 @@ postUser:
 	bne		BCHECK
 	bl		CheckCollision		// update position if 1
 	b		done
+	
 
 BCHECK:	
+	
 	teq		r5, #12				// If B was pressed,
 	moveq	r7, #1			
 	streq	r7, [r6, #16]		// set ball active flag
+	
 done:	
 	pop		{r4-r8, pc}
 
@@ -289,6 +291,8 @@ changeDirection:
 	mov		r1, #1			// set ball was hit flag
 	
 endCP:
+	
+	
 	pop		{r4-r8, pc}
 
 @ Update the ball's angle
@@ -388,4 +392,7 @@ updated:
 	str		r1, [r3]		// update x
 	str		r2, [r3, #4]	// update y
 		
+		
+
 	pop		{r4, pc}
+	

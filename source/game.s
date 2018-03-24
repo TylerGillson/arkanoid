@@ -27,7 +27,7 @@ nav:
 	cmp		r1, #8					// Joy-pad UP was pressed
 	beq		selectStart
 	b		waitLoop				// Something else was pressed, so restart
-
+.global selectStart
 selectStart:
 	bl		DrawHomeScreen
 	mov		r1, #808
@@ -51,6 +51,7 @@ selectQuit:
 @ Initialize the game map tiles and draw them to the screen.
 @ Then draw the paddle and the ball.
 @
+.global InitGame
 InitGame:
 	push	{r4-r6, lr}
 	
@@ -95,6 +96,7 @@ white_row2:
 	cmp		r5, #10
 	blt		white_row2
 
+	
 @ Draw the contents of the game map
 	bl		DrawMap				// (game_map.s)	
 	bl		DrawObjects			// (drawing.s)
@@ -105,6 +107,7 @@ white_row2:
 @
 @ Draw a black rectangle overtop of the game screen and loop forever
 @
+.global QuitGame
 QuitGame:
 	bl		DrawBlackScreen
 	b		QuitGame

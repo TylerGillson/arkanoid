@@ -50,3 +50,6 @@ DrawBlackScreen:
 	str		r5, [r4]
 	bl		DrawImage
 	pop		{r4, r5, pc}
+	
+
+	
