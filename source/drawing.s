@@ -3,13 +3,13 @@
 @
 .global DrawObjects
 DrawObjects:
-	push	{r4-r5, lr}
+	push		{r4-r5, lr}
 	
 @ draw the paddle
 	bl		InitDrawPaddle
 	ldr		r0, =small_paddle2
 	ldr		r4, =paddle_position
-	ldr		r1, [r4]			// x coord
+	ldr		r1, [r4]		// x coord
 	ldr		r2, [r4, #4]		// y coord
 	bl		DrawImage
 
@@ -17,7 +17,7 @@ DrawObjects:
 	bl		InitDrawBall
 	ldr		r0, =ball
 	ldr		r4, =ball_position
-	ldr		r1, [r4]			// x coord
+	ldr		r1, [r4]		// x coord
 	ldr		r2, [r4, #4]		// y coord	
 	bl		DrawImage	
 
@@ -40,8 +40,8 @@ drawVP2:
 	ldr		r3, =value_pack2
 	ldr		r1, [r3, #8]		// falling?
 	teq		r1, #1
-	moveq	r0, #2
-	moveq	r4, #2
+	moveq		r0, #2
+	moveq		r4, #2
 	beq		drawPack
 
 endDrawObjects:
@@ -53,15 +53,16 @@ endDrawObjects:
 @  r1 - y
 @  r2 - colour
 @
+.global DrawPixel
 DrawPixel:
-	push	{r4-r8, lr}
-	offset	.req	r4
+	push		{r4-r8, lr}
+	offset		.req	r4
 
 	ldr		r5, =frameBufferInfo	
-	ldr		r3, [r5, #4]				@ r3 = width
-	mul		r1, r3						@ r1 = y * width
-	add		offset,	r0, r1				@ offset = (y * width) + x
-	lsl		offset, #2					@ offset *= 4 (32 bits per pixel/8 = 4 bytes per pixel)
+	ldr		r3, [r5, #4]			@ r3 = width
+	mul		r1, r3				@ r1 = y * width
+	add		offset,	r0, r1			@ offset = (y * width) + x
+	lsl		offset, #2			@ offset *= 4 (32 bits per pixel/8 = 4 bytes per pixel)
 	
 	// Make 0xffff00ff (transparent pixel value)
 	mov		r6, #0xff000000
@@ -73,11 +74,11 @@ DrawPixel:
 	teq		r2, r8
 	beq		skipPixel
 	
-	ldr		r0, [r5]					@ r0 = frame buffer pointer
-	str		r2, [r0, offset]			@ store the colour (word) at frame buffer pointer + offset
+	ldr		r0, [r5]			@ r0 = frame buffer pointer
+	str		r2, [r0, offset]		@ store the colour (word) at frame buffer pointer + offset
 
 skipPixel:	
-	.unreq	offset	
+	.unreq		offset	
 	pop		{r4-r8, pc}
 // END DRAW PIXEL
 
@@ -88,7 +89,7 @@ skipPixel:
 @
 .global DrawImage
 DrawImage:
-	push	{r4, r5, r6, r7, r8, r9, lr}
+	push		{r4, r5, r6, r7, r8, r9, lr}
 	
 	img		.req	r4
 	x		.req	r5
@@ -99,33 +100,33 @@ DrawImage:
 	mov		y,   r2
 	
 	ldr		r9, =height
-	ldr		r7, [r9]					@ init row counter
+	ldr		r7, [r9]			@ init row counter
 
 drawCol:
 	ldr		r9, =width
-	ldr		r8, [r9]					@ init/reset column counter
+	ldr		r8, [r9]			@ init/reset column counter
 	
 drawRow:	
 	mov		r0, x
 	mov		r1, y
 
-	ldr		r2, [img], #4				@ load a word from img
+	ldr		r2, [img], #4			@ load a word from img
 	bl		DrawPixel
 	
-	add		x,  #1						@ increment column
-	subs	r8, #1						@ decrement column counter
+	add		x,  #1				@ increment column
+	subs		r8, #1				@ decrement column counter
 	bne		drawRow
 	
-	add		y,  #1						@ increment row
-	ldr		r8, [r9]					@ reload width
-	sub		x,  r8						@ reset x
+	add		y,  #1				@ increment row
+	ldr		r8, [r9]			@ reload width
+	sub		x,  r8				@ reset x
 	
-	subs	r7, #1						@ decrement row counter
-	bne		drawCol						@ draw next column
+	subs		r7, #1				@ decrement row counter
+	bne		drawCol				@ draw next column
 	
-	.unreq	img
-	.unreq	x
-	.unreq	y
+	.unreq		img
+	.unreq		x
+	.unreq		y
 	pop		{r4, r5, r6, r7, r8, r9, pc}
 // END DRAW IMAGE
 
@@ -134,20 +135,20 @@ drawRow:
 @
 .global DrawValuepack
 DrawValuepack:
-	push	{r4, lr}
+	push		{r4, lr}
 	
 	mov		r4, r0
 	bl		InitDrawValuepack
 	teq		r4, #1
-	ldreq	r0, =valuepack1
-	ldreq	r3, =value_pack1
-	ldreq	r1, [r3, #16]
-	ldreq	r2, [r3, #20] 
+	ldreq		r0, =valuepack1
+	ldreq		r3, =value_pack1
+	ldreq		r1, [r3, #16]
+	ldreq		r2, [r3, #20] 
 	
-	ldrne	r0, =valuepack2
-	ldrne	r3, =value_pack2
-	ldrne	r1, [r3, #16]
-	ldrne	r2, [r3, #20] 
+	ldrne		r0, =valuepack2
+	ldrne		r3, =value_pack2
+	ldrne		r1, [r3, #16]
+	ldrne		r2, [r3, #20] 
 	
 	bl		DrawImage
 	pop		{r4, pc}

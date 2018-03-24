@@ -3,7 +3,7 @@
 @
 .global ClearObjects
 ClearObjects:
-	push	{r4-r10, lr}
+	push		{r4-r10, lr}
 	
 	bl		InitDrawTile
 	bl		ClearBall			
@@ -16,14 +16,14 @@ ClearObjects:
 @ Clear the ball sprite
 @
 ClearBall:
-	push	{r4-r10, lr}
+	push		{r4-r10, lr}
 	
 	ldr		r4, =ball_position
-	ldr		r1, [r4]			// ball x
+	ldr		r1, [r4]		// ball x
 	ldr		r2, [r4, #4]		// ball y
 	
-	mov		r6, r1				// save ball x
-	mov		r7, r2				// save ball y
+	mov		r6, r1			// save ball x
+	mov		r7, r2			// save ball y
 	
 	bl		CalcTile
 //TOPLEFT:
@@ -89,28 +89,28 @@ ClearBall:
 @ Clear the paddle sprite
 @
 ClearPaddle:
-	push	{r4-r7, lr}
+	push		{r4-r7, lr}
 	
 	ldr		r4, =paddle_position
-	ldr		r1, [r4]			// paddle x
+	ldr		r1, [r4]		// paddle x
 	ldr		r2, [r4, #4]		// paddle y
-	mov		r6, r1				// save paddle x
-	mov		r7, r2				// save paddle y
+	mov		r6, r1			// save paddle x
+	mov		r7, r2			// save paddle y
 	
 	bl		CalcTile
-	bl		DrawTile			// TOP LEFT
+	bl		DrawTile		// TOP LEFT
 	
 	mov		r1, r6
 	sub		r1, #10
 	mov		r2, r7
 	bl		CalcTile
-	bl		DrawTile			// LEFT
+	bl		DrawTile		// LEFT
 	
 	mov		r1, r6
 	add		r1, #100
 	mov		r2, r7
 	bl		CalcTile
-	bl		DrawTile			// TOP RIGHT
+	bl		DrawTile		// TOP RIGHT
 
 	pop		{r4-r7, pc}
 
@@ -119,10 +119,10 @@ ClearPaddle:
 @
 .global ClearValuepacks
 ClearValuepacks:
-	push	{r4-r7, lr}
+	push		{r4-r7, lr}
 	
-	ldr		r5,	=value_pack1
-	mov		r4, #1				// valuepack flag
+	ldr		r5, =value_pack1
+	mov		r4, #1			// valuepack flag
 	ldr		r1, [r5, #8]
 	teq		r1, #1
 	bne		clearVP2
@@ -158,14 +158,14 @@ doneClearing:
 @
 .global ClearBallBottom
 ClearBallBottom:
-	push	{r4-r7, lr}
+	push		{r4-r7, lr}
 	
 	ldr		r4, =ball_position
-	ldr		r1, [r4]			// ball x
+	ldr		r1, [r4]		// ball x
 	ldr		r2, [r4, #4]		// ball y
 	
-	mov		r6, r1				// save ball x
-	mov		r7, r2				// save ball y
+	mov		r6, r1			// save ball x
+	mov		r7, r2			// save ball y
 	
 	bl		CalcTile
 //TOPLEFT:
