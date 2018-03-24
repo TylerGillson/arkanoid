@@ -9,12 +9,12 @@ Update:
 	mov		r4, r0
 	mov		r5, r1
 	
-	tst		r0, #1				// mask for RIGHT
+	tst		r0, #(1<<4)				// mask for RIGHT
 	moveq	r1, #1				// set moving RIGHT flag
 	bleq	UpdatePaddle
 	beq		postUser
 	
-	tst		r0, #(1<<1)			// mask for LEFT
+	tst		r0, #(1<<5)			// mask for LEFT
 	moveq	r1, #0				// clear moving RIGHT flag (b/c moving LEFT)
 	bleq	UpdatePaddle
 
