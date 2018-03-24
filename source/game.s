@@ -89,6 +89,10 @@ white_row:
 	bl		DrawMap				// (game_map.s)	
 	bl		DrawObjects			// (drawing.s)
 	bl		DrawScoreLives
+	bl		drawLives
+	bl		drawScore
+
+
 	
 	pop		{r4-r6, pc}
 // END INIT GAME
