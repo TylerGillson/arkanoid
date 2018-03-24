@@ -1,10 +1,23 @@
-@ Clear necessary tiles
+@
+@ Re-draw all necessary tiles
 @
 .global ClearObjects
 ClearObjects:
 	push	{r4-r10, lr}
 	
 	bl		InitDrawTile
+	bl		ClearBall			
+	bl		ClearPaddle		
+	bl		ClearValuepacks
+	
+	pop		{r4-r10, pc}
+
+@
+@ Clear the ball sprite
+@
+ClearBall:
+	push	{r4-r10, lr}
+	
 	ldr		r4, =ball_position
 	ldr		r1, [r4]			// ball x
 	ldr		r2, [r4, #4]		// ball y
@@ -70,7 +83,14 @@ ClearObjects:
 //BOTTOMLEFT:
 	bl		DrawTile
 
-// CLEAR THE PADDLE
+	pop		{r4-r10, pc}
+
+@
+@ Clear the paddle sprite
+@
+ClearPaddle:
+	push	{r4-r7, lr}
+	
 	ldr		r4, =paddle_position
 	ldr		r1, [r4]			// paddle x
 	ldr		r2, [r4, #4]		// paddle y
@@ -91,13 +111,11 @@ ClearObjects:
 	mov		r2, r7
 	bl		CalcTile
 	bl		DrawTile			// TOP RIGHT
-	
-	bl		ClearValuepacks		// CLEAR VALUEPACKS
-	
-	pop		{r4-r10, pc}
+
+	pop		{r4-r7, pc}
 
 @
-@
+@ Clear any valuepacks that are currently falling down the screen.
 @
 .global ClearValuepacks
 ClearValuepacks:
@@ -135,4 +153,45 @@ clearVP2:
 doneClearing:
 	pop		{r4-r7, pc}
 	
+@
+@ Clear the ball sprite when it is at the bottom of the screen
+@
+.global ClearBallBottom
+ClearBallBottom:
+	push	{r4-r7, lr}
 	
+	ldr		r4, =ball_position
+	ldr		r1, [r4]			// ball x
+	ldr		r2, [r4, #4]		// ball y
+	
+	mov		r6, r1				// save ball x
+	mov		r7, r2				// save ball y
+	
+	bl		CalcTile
+//TOPLEFT:
+	bl		DrawTile
+
+	mov		r1, r6
+	add		r1, #8
+	mov		r2, r7
+	sub		r2, #16
+	bl		CalcTile
+//UU1:
+	bl		DrawTile
+
+	mov		r1, r6
+	add		r1, #24
+	mov		r2, r7
+	sub		r2, #16
+	bl		CalcTile
+//UU2:
+	bl		DrawTile
+
+	mov		r1, r6
+	add		r1, #32
+	mov		r2, r7
+	bl		CalcTile
+//TOPRIGHT:
+	bl		DrawTile
+
+	pop		{r4-r7, pc}

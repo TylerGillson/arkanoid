@@ -402,8 +402,47 @@ updateSW:
 updated:
 	str		r1, [r3]		// update x
 	str		r2, [r3, #4]	// update y
+	
+	bl		CheckBottomBoundary
 		
 	pop		{r4, pc}
+
+@ Check if the ball has reached the bottom of the screen. If it has,
+@ remove a life and reset the ball.
+@  
+@ Inputs:
+@  r2 - ball y
+@
+CheckBottomBoundary:
+	push	{r4-r7, lr}
+	
+	mov		r0, #828
+	add		r2, #32
+	cmp		r0, r2
+	bhi		endCheckBottomBoundary
+	
+	ldr		r0, =lives
+	ldr		r1, [r0]
+	sub		r1, #1
+	str		r1, [r0]		// decrement lives count
+
+	bl		InitDrawTile
+	bl		ClearBallBottom
+	
+// reset the ball:	
+	ldr		r0, =ball_position
+	mov		r1, #880
+	str		r1, [r0]
+	mov		r1, #667
+	str		r1, [r0, #4]
+	mov		r1, #0
+	str		r1, [r0, #8]
+	str		r1, [r0, #16]
+	mov		r1, #1
+	str		r1, [r0, #12]
+	
+endCheckBottomBoundary:
+	pop		{r4-r7, pc}
 
 @
 @ If a valuepack's falling attribute is enabled, update its y coordinate.
