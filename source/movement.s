@@ -477,6 +477,10 @@ checkXAxis:
 	mov		r1, #1
 	str		r1, [r0, #12]	// enable effect
 	
+	mov		r1, #0			// reset x & y
+	str		r1, [r0, #16]
+	str		r1, [r0, #20]
+	
 doneXAxis:
 	teq		r8, #1
 	bne		doneCheckPaddle
