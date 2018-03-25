@@ -381,7 +381,18 @@ skipMove:
 @ Update the x & y coordinates of the ball based on its current direction
 @
 UpdateBall:
-	push		{r4, lr}
+	push		{r4-r7, lr}
+	
+	ldr		r0, =value_pack1
+	ldr		r1, [r0, #12]
+	teq		r1, #1
+	moveq		r5, #2			// 60 y factor
+	moveq		r6, #1			// 60 x factor
+	moveq		r7, #1			// 45 x/y factor
+	
+	movne		r5, #3			// 60 y factor
+	movne		r6, #1			// 60 x factor
+	movne		r7, #2			// 45 x/y factor
 	
 	ldr		r3, =ball_position
 	ldr		r0, [r3, #12]		// get the ball's direction
@@ -391,45 +402,47 @@ UpdateBall:
 	
 	teq		r0, #1			// NW?
 	bne		updateNE
-	sub		r1, #1
 	teq		r4, #1
-	subeq		r2, #2
-	subne		r2, #1
+	subeq		r2, r5		// y 60
+	subeq		r1, r6		// x 60
+	subne		r2, r7		// y 45
+	subne		r1, r7		// x 45
 	b		updated
 
 updateNE:	
 	teq		r0, #2			// NE?
 	bne		updateSE
-	add		r1, #1
 	teq		r4, #1
-	subeq		r2, #2
-	subne		r2, #1
+	subeq		r2, r5		// y 60
+	addeq		r1, r6		// x 60
+	subne		r2, r7		// y 45
+	addne		r1, r7		// x 45
 	b		updated
 
 updateSE:	
 	teq		r0, #3			// SE?
 	bne		updateSW
-	add		r1, #1
 	teq		r4, #1
-	addeq		r2, #2
-	addne		r2, #1
+	addeq		r2, r5		// y 60
+	addeq		r1, r6		// x 60
+	addne		r2, r7		// y 45
+	addne		r1, r7		// x 45
 	b		updated
 
 updateSW:
-	sub		r1, #1			// SW			
-	teq		r4, #1
-	addeq		r2, #2
-	addne		r2, #1
-
+	teq		r4, #1			// SW
+	addeq		r2, r5		// y 60
+	subeq		r1, r6		// x 60
+	addne		r2, r7		// y 45
+	subne		r1, r7		// x 45
+	
 updated:
 	str		r1, [r3]		// update x
 	str		r2, [r3, #4]		// update y
 	
 	bl		CheckBottomBoundary
 		
-		
-
-	pop		{r4, pc}
+	pop		{r4-r7, pc}
 	
 @ Check if the ball has reached the bottom of the screen. If it has,
 @ remove a life and reset the ball.

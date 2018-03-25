@@ -83,6 +83,45 @@ ClearBall:
 //BOTTOMLEFT:
 	bl		DrawTile
 
+// ACCOUNT FOR BALL SPEED:
+	ldr		r0, =value_pack1
+	ldr		r3, [r0, #12]
+	teq		r3, #1
+	beq		doneClearBall
+
+	mov		r1, r6
+	add		r1, #48
+	mov		r2, r7
+	add		r2, #8
+	bl		CalcTile
+//RR1:
+	bl		DrawTile
+	
+	mov		r1, r6
+	add		r1, #48
+	mov		r2, r7
+	add		r2, #24
+	bl		CalcTile
+//RR2:
+	bl		DrawTile
+
+	mov		r1, r6
+	add		r1, #8
+	mov		r2, r7
+	sub		r2, #48
+	bl		CalcTile
+//DD1:
+	bl		DrawTile
+	
+	mov		r1, r6
+	add		r1, #24
+	mov		r2, r7
+	sub		r2, #48
+	bl		CalcTile
+//DD2:
+	bl		DrawTile
+
+doneClearBall:
 	pop		{r4-r10, pc}
 
 @

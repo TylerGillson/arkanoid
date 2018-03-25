@@ -6,7 +6,6 @@ HomeLoop:
 	menu_option	.req	r4	
 
 	bl		resetR0R1AndDelay
-	
 	b		selectStart
 	
 waitLoop:
