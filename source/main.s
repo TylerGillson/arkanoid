@@ -112,6 +112,18 @@ ResetLivesAndScore:
 	mov		r1, #0
 	str		r1, [r0]		// reset score
 	bx		lr
+
+@
+@ Update the score
+@
+@  r0 - amount to add to current score
+.global UpdateScore
+UpdateScore:
+	ldr		r1, =score
+	ldr		r2, [r1]
+	add		r2, r0
+	str		r2, [r1]
+	bx		lr
 		
 @ Data section
 .section .data
@@ -190,7 +202,7 @@ value_pack1:
 
 .global value_pack2
 value_pack2:
-.int	6			// row index
+.int	4			// row index
 .int	5			// column index
 .int	0			// falling? (0=no, 1=yes)
 .int	0			// effect enabled? (0=no, 1=yes)

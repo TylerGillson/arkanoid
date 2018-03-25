@@ -153,10 +153,17 @@ hitBrick:
 	mov		r7, r1
 	bl		DrawTile
 	
-// Check for valuepack
+// Check for valuepack:
 	mov		r0, r6			// tile row idx
 	mov		r1, r7			// tile col idx
 	bl		CheckValuepack
+
+// Update score:
+	mov		r0, #10			// 10 points for breaking a brick
+	bl		UpdateScore
+	//**********************
+	//bl		PrintScore
+	//**********************
 
 // END BRICK HITTING CODE
 hitWall:
@@ -563,6 +570,12 @@ checkXAxis:
 	mov		r1, #0			// reset x & y
 	str		r1, [r0, #16]
 	str		r1, [r0, #20]
+	
+	mov		r0, #50			// 50 points for getting a value pack
+	bl		UpdateScore
+	//**********************
+	//bl		PrintScore
+	//**********************
 	
 doneXAxis:
 	teq		r8, #1

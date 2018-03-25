@@ -33,7 +33,7 @@ enablePack:
 	ldrne	r0, =value_pack2
 	str		r1, [r0, #16]
 	str		r2, [r0, #20] 
-	
+
 	b		endCVP
 	
 CheckVP2:
