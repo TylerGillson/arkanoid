@@ -97,7 +97,7 @@ white_row:
 	blt		white_row
 	
 @ Put in a row of gold blocks
-/*	sub		r4, #58				
+	sub		r4, #58				
 	mov		r5, #0
 	mov		r6, #4				// gold block code
 gold_row:
@@ -115,16 +115,14 @@ red_row:
 	add		r5, #1
 	cmp		r5, #10
 	blt		red_row
-*/
-
 	
 @ Draw the contents of the game map
 	bl		DrawMap				// (game_map.s)	
 	bl		DrawObjects			// (drawing.s)
-	bl		DrawBottomBar			// (game_map.s)
+	bl		DrawBottomBar		// (game_map.s)
 	bl		drawLives			// (bottomLabels.s)
 	bl		drawScore			// (bottomLabels.s)	
-	bl		updateLives			//print original lives count
+	bl		updateLives			// print original lives count
 	
 	pop		{r4-r6, pc}
 // END INIT GAME

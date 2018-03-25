@@ -88,6 +88,7 @@ ClearBall:
 @
 @ Clear the paddle sprite
 @
+.global ClearPaddle
 ClearPaddle:
 	push		{r4-r7, lr}
 	
@@ -105,6 +106,12 @@ ClearPaddle:
 	mov		r2, r7
 	bl		CalcTile
 	bl		DrawTile		// LEFT
+	
+	mov		r1, r6
+	add		r1, #48
+	mov		r2, r7
+	bl		CalcTile
+	bl		DrawTile		// CENTRE
 	
 	mov		r1, r6
 	add		r1, #100

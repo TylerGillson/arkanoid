@@ -39,6 +39,4 @@ resetR0R1AndDelay:
 	mov		r0, #50000
 	bl		delayMicroseconds
 
-	
-	
 	pop		{pc}

@@ -29,12 +29,14 @@ GameLoop:
 	bl		drawWinOrLose
 	// then quit game
 
-	ldr		r0, =value_pack1
-	ldr		r1, [r0, #12]
+// normalize delay according to ball angle (so it always goes the same speed)
+	ldr		r0, =ball_position
+	ldr		r1, [r0, #8]
 	teq		r1, #1
 	movne		r0, #5000
 	moveq		r0, #8000
 	bl		delayMicroseconds
+
 	b		GameLoop
 
 .global PauseScreen

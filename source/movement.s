@@ -8,6 +8,11 @@ Update:
 	
 	mov		r4, r0
 	mov		r5, r1
+
+	ldr		r6, =ball_position
+	ldr		r7, [r6, #16]	
+	teq		r7, #1
+	bne		skipPaddle		// don't move the paddle if the ball isn't active
 	
 	tst		r0, #(1<<4)		// mask for RIGHT
 	moveq		r1, #1			// set moving RIGHT flag
@@ -18,6 +23,7 @@ Update:
 	moveq		r1, #0			// clear moving RIGHT flag (b/c moving LEFT)
 	bleq		UpdatePaddle
 
+skipPaddle:
 	teq		r1, #9
 	beq		PauseScreen
 	
@@ -25,9 +31,6 @@ postUser:
 	bl		UpdateValuepacks
 	bl		CheckPaddleValuepacks
 	
-	ldr		r6, =ball_position
-	ldr		r7, [r6, #16]	
-
 // activate the game by pressing B:
 	teq		r7, #1			// check ball active flag
 	bne		bCheck
@@ -39,7 +42,6 @@ bCheck:
 	moveq		r7, #1			
 	streq		r7, [r6, #16]		// set ball active flag
 
-	
 done:	
 	pop		{r4-r8, pc}
 
@@ -433,18 +435,8 @@ CheckBottomBoundary:
 	bl		updateLives
 	bl		InitDrawTile
 	bl		ClearBallBottom
-	
-// reset the ball:	
-	ldr		r0, =ball_position
-	mov		r1, #880
-	str		r1, [r0]
-	mov		r1, #667
-	str		r1, [r0, #4]
-	mov		r1, #0
-	str		r1, [r0, #8]
-	str		r1, [r0, #16]
-	mov		r1, #1
-	str		r1, [r0, #12]
+	bl		ClearPaddle
+	bl		resetObjectsDefault
 	
 endCheckBottomBoundary:
 	pop		{r4-r7, pc}
