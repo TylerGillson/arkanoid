@@ -53,6 +53,9 @@ doneReset:
 	pop		{r4-r5, pc}
 
 
+@
+@ Reset r0, r1, and delay the clock
+@
 .global resetR0R1AndDelay
 resetR0R1AndDelay:
 	push	{lr}
