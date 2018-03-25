@@ -60,7 +60,7 @@ overwrite_Lives:
 	push	{r4, r5, lr}
 	ldr		r0, =overwriteLives
 	mov		r1, #760
-	mov		r2, #845
+	mov		r2, #828
 	
 	ldr		r4, =width
 	mov		r5, #10
