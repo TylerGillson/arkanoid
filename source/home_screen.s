@@ -11,7 +11,7 @@ DrawHomeScreen:
 	str		r5, [r4]
 	
 	ldr		r4,	=height
-	mov		r5, #672
+	mov		r5, #717
 	str		r5, [r4]
 	bl		DrawImage
 	pop		{r4, r5, pc}
@@ -46,7 +46,7 @@ DrawBlackScreen:
 	str		r5, [r4]
 	
 	ldr		r4,	=height
-	mov		r5, #672
+	mov		r5, #717
 	str		r5, [r4]
 	bl		DrawImage
 	pop		{r4, r5, pc}

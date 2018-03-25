@@ -429,6 +429,8 @@ CheckBottomBoundary:
 	sub		r1, #1
 	str		r1, [r0]		// decrement lives count
 
+	bl		overwrite_Lives
+	bl		updateLives
 	bl		InitDrawTile
 	bl		ClearBallBottom
 	

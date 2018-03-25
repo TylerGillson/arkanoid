@@ -124,6 +124,7 @@ red_row:
 	bl		DrawBottomBar			// (game_map.s)
 	bl		drawLives			// (bottomLabels.s)
 	bl		drawScore			// (bottomLabels.s)	
+	bl		updateLives			//print original lives count
 	
 	pop		{r4-r6, pc}
 // END INIT GAME

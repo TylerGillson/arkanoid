@@ -55,6 +55,23 @@ DrawBottomBar:
 	bl		DrawImage
 	pop		{r4, r5, pc}
 
+.global overwrite_Lives
+overwrite_Lives:
+	push	{r4, r5, lr}
+	ldr		r0, =overwriteLives
+	mov		r1, #760
+	mov		r2, #828
+	
+	ldr		r4, =width
+	mov		r5, #10
+	str		r5, [r4]
+	
+	ldr		r4, =height
+	mov		r5, #45
+	str		r5, [r4]
+	bl		DrawImage
+	pop		{r4, r5, pc}
+
 @ Get an index into the game map based on col & row indices
 @  r0 - row index
 @  r1 - col index

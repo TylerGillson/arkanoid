@@ -34,7 +34,30 @@ drawLives:
 	bl 		drawChar
 
 	pop {pc}
+
+.global updateLives
+updateLives:
+	push {r4-r6, lr}
+	life	.req	r6
 	
+	ldr		r4,	=lives
+	ldr		r5,	[r4]
+	cmp		r5,	#0
+	moveq		life,	#'0'
+	cmp		r5,	#1
+	moveq		life,	#'1'
+	cmp		r5,	#2
+	moveq		life,	#'2'
+	cmp		r5,	#3
+	moveq		life,	#'3'
+	
+	mov		r0,	life
+	mov		r1,	#760
+	mov		r2,	#845	
+	bl		drawChar	
+	
+	pop {r4-r6, pc}
+
 .global drawScore	
 drawScore:
 	push	{lr}
