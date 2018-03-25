@@ -13,8 +13,8 @@ DrawTile:
 	ldr		r6, =game_map		// pointer to game_map
 	ldrb		r7, [r6, r0]		// Load the byte for the current tile
 	
-	teq		r7, #0
-	ldreq		r0, =background
+	teq		r7, #0			// draw tile according to tile type
+	ldreq		r0, =background		
 	
 	teq		r7, #1
 	ldreq		r0, =wall
@@ -38,6 +38,9 @@ DrawTile:
 	
 	pop		{r4-r10, pc}
 
+@
+@ Draw the botton Bar which shows lives and scores.
+@
 .global DrawBottomBar
 DrawBottomBar:
 	push	{r4, r5, lr}
@@ -55,6 +58,9 @@ DrawBottomBar:
 	bl		DrawImage
 	pop		{r4, r5, pc}
 
+@
+@ Draw a piece of black image to cover the previous lives.
+@
 .global overwrite_Lives
 overwrite_Lives:
 	push	{r4, r5, lr}
