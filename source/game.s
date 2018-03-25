@@ -21,7 +21,6 @@ input:
 	cmp		r1, #4					// A was pressed
 	bne		nav
 	teq		menu_option, #1
-	bleq	resetObjectsDefault
 	bleq	InitGame
 	teq		menu_option, #1
 	beq		GameLoop				// begin the main game loop (main.s)
@@ -32,7 +31,6 @@ nav:
 	beq		selectQuit
 	cmp		r1, #8				// Joy-pad UP was pressed
 	beq		selectStart
-
 	b		waitLoop			// Something else was pressed, so restart
 	
 .global selectStart

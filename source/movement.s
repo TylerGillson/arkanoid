@@ -490,6 +490,16 @@ updatePack:
 	add		r1, #1			// increment valuepack y
 	str		r1, [r0, #20]
 	
+	mov		r0, #828
+	add		r1, #21
+	mov		r2, r4
+	cmp		r1, r0
+	bls		noReset
+	bl		InitDrawTile
+	bl		ClearVPS
+	bl		ResetVPS
+	
+noReset:	
 	teq		r4, #1
 	bne		endUpdateVPs
 

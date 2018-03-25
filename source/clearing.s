@@ -88,39 +88,29 @@ ClearBall:
 	ldr		r3, [r0, #12]
 	teq		r3, #1
 	beq		doneClearBall
-
-	mov		r1, r6
-	add		r1, #48
-	mov		r2, r7
-	add		r2, #8
-	bl		CalcTile
-//RR1:
-	bl		DrawTile
 	
-	mov		r1, r6
-	add		r1, #48
+	mov		r0, #800
 	mov		r2, r7
-	add		r2, #24
-	bl		CalcTile
-//RR2:
-	bl		DrawTile
-
+	add		r2, #32
+	cmp		r2, r0
+	bhi		doneClearBall		
+	 
 	mov		r1, r6
 	add		r1, #8
 	mov		r2, r7
-	sub		r2, #48
+	add		r2, #40
 	bl		CalcTile
-//DD1:
+DD1:
 	bl		DrawTile
-	
+
 	mov		r1, r6
 	add		r1, #24
 	mov		r2, r7
-	sub		r2, #48
+	add		r2, #40
 	bl		CalcTile
-//DD2:
+DD2:
 	bl		DrawTile
-
+	
 doneClearBall:
 	pop		{r4-r10, pc}
 
@@ -182,7 +172,12 @@ clearPack:
 	
 	ldr		r1, [r5, #16]
 	ldr		r2, [r5, #20]
-	add		r2, #22
+	
+	mov		r3, r2
+	add		r3, #22
+	mov		r6, #828
+	cmp		r6, r3
+	addhi		r2, #22
 	bl		CalcTile
 	bl		DrawTile
 	
@@ -195,6 +190,7 @@ clearVP2:
 	ldr		r1, [r5, #8]
 	teq		r1, #1
 	beq		clearPack
+	
 
 doneClearing:
 	pop		{r4-r7, pc}
@@ -240,4 +236,22 @@ ClearBallBottom:
 //TOPRIGHT:
 	bl		DrawTile
 
+	pop		{r4-r7, pc}
+	
+@
+@ Clear valuepacks
+@
+.global ClearVPS
+ClearVPS:
+	push	{r4-r7, lr}
+
+	teq		r2, #2
+	ldreq	r0, =value_pack2
+	ldrne	r0, =value_pack1
+	ldr		r1, [r0, #16]		// x
+	ldr		r2, [r0, #20]		// y
+	bl		CalcTile
+TEST:	
+	bl		DrawTile
+	
 	pop		{r4-r7, pc}
