@@ -10,19 +10,20 @@ main:
 	@ Get frame buffer information
 	ldr 	r0, =frameBufferInfo 		@ frame buffer information structure
 	bl		initFbInfo
-	
+
+mainHomeLogic:
 	@ Execute home loop logic
 	bl		HomeLoop		// (game.s)
 	
 .global GameLoop
-GameLoop:
+GameLoop: 
 	bl		ReadSNES		// read from the SNES controller (snes_driver.s)
 
 	bl		Update			// update game state variables (movement.s)
 	bl		ClearObjects	// erase necessary game grid tiles (clearing.s)
 	bl		DrawObjects		// re-draw the paddle & ball (drawing.s)
 	bl		setWinFlag			
-	bl		setLossFlag		
+	bl		setLoseFlag		
 	
 	// draw win or lose screen accordingly
 	bl		drawWinOrLose
@@ -40,7 +41,7 @@ GameLoop:
 PauseScreen:
 	
 	bl		DrawPauseScreen
-	mov		r0,	 #60000
+	mov		r0,	 #20000
 	bl		delayMicroseconds
 	b		pauseSelectRestart		
 	
@@ -48,7 +49,7 @@ pauseWaitLoop:
 	bl		ReadSNES
 	
 continueGame:	
-	teq		r1, #9
+	tst		r0, #(1<<8)
 	bleq	InitGame
 	beq		GameLoop				// begin the main game loop (main.s)
 	
@@ -77,82 +78,21 @@ pauseSelectQuit:
 	b		pauseWaitLoop
 	
 aPressed:	
+	bl		resetObjectsDefault
+	bl		resetR0R1AndDelay
+	mov		r0, #50000
+	bl		delayMicroseconds
+	mov		r0, #30000
+	bl		delayMicroseconds
+	
 	cmp		r6, #1
 	bleq	InitGame
-	bl		resetBallPaddle			
-@ Draw the contents of the game map
-	bleq	DrawMap				// (game_map.s)	
-	
-	bne		quitToMainScreen
+	beq		GameLoop
+	//when quit need to go back to main menu first
+	bne		main
 	
 	
-resetBallPaddle:
-	push {r5, r7, lr}
-	
-	ldr r5, =paddle_position
-	mov r7, #864
-	str r7, [r5]
-	mov r7, #700
-	str r7, [r5, #4]
-	
-	ldr r5, =ball_position
-	mov r7, #880
-	str r7, [r5]
-	mov r7, #668
-	str r7, [r5, #4]
-	mov r7, #0
-	str r7, [r5, #8]
-	mov r7, #3
-	str r7, [r5, #12]
-	mov r7, #0
-	str r7, [r5, #16]
-	
-	pop	{r5, r7, pc}
 		
-quitToMainScreen:
-	push	{r4, lr}
-	
-	Qmenu_option		.req	r4	
-	
-	b		QselectStart
-	
-QwaitLoop:
-	bl		ReadSNES				// See snes_driver.s
-
-Qinput:	
-	cmp		r1, #4					// A was pressed
-	bne		Qnav
-	teq		Qmenu_option, #1
-	bleq	InitGame
-	beq		GameLoop				// begin the main game loop (main.s)
-	blne	QuitGame
-
-Qnav:	
-	cmp		r1, #7					// Joy-pad DOWN was pressed
-	beq		QselectQuit
-	cmp		r1, #8					// Joy-pad UP was pressed
-	beq		QselectStart
-	b		QwaitLoop				// Something else was pressed, so restart
-
-QselectStart:
-	bl		DrawHomeScreen
-	mov		r1, #808
-	mov		r2, #541				// location of play option
-	bl		DrawMenuSelection
-	mov		Qmenu_option, #1
-	b		QwaitLoop
-
-QselectQuit:
-	bl		DrawHomeScreen
-	mov		r1, #808
-	mov		r2, #661				// location of quit option
-	bl		DrawMenuSelection
-	mov		Qmenu_option, #0
-	b		QwaitLoop
-	
-	.unreq	Qmenu_option
-	pop		{r4, pc}
-
 @ Data section
 .section .data
 
@@ -209,7 +149,7 @@ score:
 
 .global lives
 lives:
-.int	0			// number of lives (default=5)
+.int	3			// number of lives (default=3)
 
 .global win
 win:

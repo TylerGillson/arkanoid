@@ -39,6 +39,7 @@ bCheck:
 	moveq		r7, #1			
 	streq		r7, [r6, #16]		// set ball active flag
 
+	
 done:	
 	pop		{r4-r8, pc}
 

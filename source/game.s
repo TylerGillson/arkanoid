@@ -4,19 +4,29 @@
 HomeLoop:
 	push		{r4, lr}
 	menu_option	.req	r4	
-	b		selectStart
 
+	bl		resetR0R1AndDelay
+	
+	b		selectStart
+	
 waitLoop:
+	bl		resetR0R1AndDelay
+	mov		r0, #50000
+	bl		delayMicroseconds
+	mov		r0, #50000
+	bl		delayMicroseconds
+	mov		r1, #0
 	bl		ReadSNES				// See snes_driver.s
 
 input:	
 	cmp		r1, #4					// A was pressed
 	bne		nav
 	teq		menu_option, #1
-	bleq		InitGame
+	bleq	resetObjectsDefault
+	bleq	InitGame
 	teq		menu_option, #1
 	beq		GameLoop				// begin the main game loop (main.s)
-	blne		QuitGame
+	blne	QuitGame
 
 nav:	
 	cmp		r1, #7				// Joy-pad DOWN was pressed
@@ -60,7 +70,7 @@ InitGame:
 	mov		r5, #0
 	mov		r6, #1				// wall code
 top_wall:
-	strb		r6, [r4], #1
+	strb	r6, [r4], #1
 	add		r5, #1
 	cmp		r5, #12
 	blt		top_wall
@@ -87,7 +97,7 @@ white_row:
 	blt		white_row
 	
 @ Put in a row of gold blocks
-	sub		r4, #58				
+/*	sub		r4, #58				
 	mov		r5, #0
 	mov		r6, #4				// gold block code
 gold_row:
@@ -105,6 +115,7 @@ red_row:
 	add		r5, #1
 	cmp		r5, #10
 	blt		red_row
+*/
 
 	
 @ Draw the contents of the game map
