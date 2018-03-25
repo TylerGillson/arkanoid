@@ -21,11 +21,10 @@ input:
 	cmp		r1, #4					// A was pressed
 	bne		nav
 	teq		menu_option, #1
-	bleq	resetObjectsDefault
-	bleq	InitGame
+	bleq		InitGame
 	teq		menu_option, #1
 	beq		GameLoop				// begin the main game loop (main.s)
-	blne	QuitGame
+	blne		QuitGame
 
 nav:	
 	cmp		r1, #7				// Joy-pad DOWN was pressed
