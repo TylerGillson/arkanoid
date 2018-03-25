@@ -531,6 +531,11 @@ CheckPaddleValuepacks:
 	mov		r8, #1
 	cmp		r6, r1			// paddle y vs. vp y
 	bhi		checkPaddleVP2
+	
+	add		r6, #21			// bottom of the paddle
+	ldr		r7, [r0, #20]
+	cmp		r7, r6
+	bhi		checkPaddleVP2
 
 checkXAxis:
 	add		r5, #96
@@ -569,8 +574,15 @@ checkPaddleVP2:
 	add		r1, #21			// bottom of the valuepack
 	mov		r8, #2
 	cmp		r6, r1
-	bls		checkXAxis
-
+	bhi		doneCheckPaddle
+	
+	add		r6, #21			// bottom of the paddle
+	ldr		r7, [r0, #20]
+	cmp		r7, r6
+	bhi		doneCheckPaddle
+	
+	b		checkXAxis
+	
 doneCheckPaddle:
 	pop		{r4-r8, pc}
 
