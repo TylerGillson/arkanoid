@@ -1,9 +1,11 @@
 .section .text
-	
+@
+@ Draw the "LIVES:" lable (Bottom of the game screen)
+@
 .global	drawLives
 drawLives:
 	push 	{lr}
-	mov		r1, 	#700
+	mov	r1, 	#700		
 	mov 	r2, 	#845
 	mov 	r0, 	#'L'
 	bl		drawChar
@@ -13,12 +15,12 @@ drawLives:
 	mov 	r0, 	#'I'
 	bl 		drawChar
 
-	mov 	r1,		#720
-	mov 	r2,		#845
+	mov 	r1,	#720
+	mov 	r2,	#845
 	mov 	r0, 	#'V'
 	bl 		drawChar
 
-	mov		r1, 	#730
+	mov	r1, 	#730
 	mov 	r2, 	#845
 	mov 	r0, 	#'E'
 	bl 		drawChar
@@ -35,6 +37,10 @@ drawLives:
 
 	pop {pc}
 
+
+@
+@ Draw the number of lives after "LIVES" lable
+@
 .global updateLives
 updateLives:
 	push {r4-r6, lr}
@@ -58,43 +64,50 @@ updateLives:
 	
 	pop {r4-r6, pc}
 
+@
+@ Draw the "SCORE:" lable (Bottom of the game screen)
+@
 .global drawScore	
 drawScore:
 	push	{lr}
-	mov 	r1,		#1000
+	mov 	r1,	#1000
 	mov 	r2, 	#845
 	mov 	r0, 	#'S'
 	bl 		drawChar
 
 	mov 	r1, 	#1010
-	mov		r2, 	#845
+	mov	r2, 	#845
 	mov 	r0, 	#'C'
 	bl 		drawChar
 
-	mov		r1, 	#1020
-	mov 	r2,		#845
+	mov	r1, 	#1020
+	mov 	r2,	#845
 	mov 	r0, 	#'O'
 	bl 		drawChar
 
-	mov 	r1,		#1030
+	mov 	r1,	#1030
 	mov 	r2, 	#845
 	mov 	r0, 	#'R'
 	bl 		drawChar
 
-	mov		r1, 	#1040
+	mov	r1, 	#1040
 	mov 	r2, 	#845
 	mov 	r0, 	#'E'
-	bl 		drawChar
+	bl 	drawChar
 	
 	mov 	r1, 	#1050
 	mov 	r2, 	#845
 	mov 	r0, 	#':'
-	bl 		drawChar
+	bl 	drawChar
 
 	pop {pc}
 
-
-//r0 = char, r1 = x, r2 = y
+@
+@ Draw a character
+@ 	r0 = char
+@	r1 = x
+@	r2 = y
+@
 drawChar:
 	push		{r4-r9, lr}
 
