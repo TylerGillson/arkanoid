@@ -20,14 +20,12 @@ GameLoop:
 	bl		ReadSNES		// read from the SNES controller (snes_driver.s)
 
 	bl		Update			// update game state variables (movement.s)
-	bl		ClearObjects	// erase necessary game grid tiles (clearing.s)
+	bl		ClearObjects		// erase necessary game grid tiles (clearing.s)
 	bl		DrawObjects		// re-draw the paddle & ball (drawing.s)
 	bl		setWinFlag			
 	bl		setLoseFlag		
 	
-	// draw win or lose screen accordingly
-	bl		drawWinOrLose
-	// then quit game
+	bl		drawWinOrLose		// draw win or lose screen accordingly
 
 // normalize delay according to ball angle (so it always goes the same speed)
 	ldr		r0, =ball_position
@@ -41,55 +39,61 @@ GameLoop:
 
 .global PauseScreen
 PauseScreen:
-	
-	bl		DrawPauseScreen
+	//draw the pause screen, then give user some time to select
+	bl		DrawPauseScreen				
 	mov		r0,	 #20000
 	bl		delayMicroseconds
 	b		pauseSelectRestart		
-	
+
 pauseWaitLoop:
-	bl		ReadSNES
+	bl		ReadSNES			
 	
-continueGame:	
+// if "start" button was pressed, continue game
+continueGame:
 	tst		r0, #(1<<8)
-	bleq	InitGame
-	beq		GameLoop				// begin the main game loop (main.s)
+	bleq		InitGame				// draw game screen again
+	beq		GameLoop				// then begin the main game loop (main.s)
 	
+// if "A" button was pressed(user selected a option on the pause menu), branch to aPressed
+// if "A" button was not pressed, check if "Up" or "Down" was pressed
 pauseInput:
 	teq		r1, #4
 	bne		pauseNav
 	beq		aPressed
 		
 pauseNav:
-	teq		r1, #7
-	beq		pauseSelectQuit
-	teq		r1, #8
-	beq		pauseSelectRestart
-	b		pauseWaitLoop
+	teq		r1, #7					// if "Down" was pressed
+	beq		pauseSelectQuit				// then user selected quit option
+	teq		r1, #8					// if "Up" was pressed 
+	beq		pauseSelectRestart			// then user selected restart option
+	b		pauseWaitLoop				// else wait for input again
 	
+// user move selection border to Restart, r6 = 1 indicates restart option is being selected
 pauseSelectRestart:
 	bl		DrawPauseScreen
 	bl		DrawPauseSelection1
 	mov		r6, #1
 	b		pauseWaitLoop
 	
+// user move selection border to Quit, r6 = 0 indicates quit option is being selected
 pauseSelectQuit:
 	bl		DrawPauseScreen
 	bl		DrawPauseSelection2
 	mov		r6, #0
 	b		pauseWaitLoop
 	
+// player selected an option, branch to restart the game or main menu accordingly 
 aPressed:	
-	bl		resetObjectsDefault
-	bl		resetR0R1AndDelay
-	mov		r0, #50000
+	bl		resetObjectsDefault		// reset ball and paddle
+	bl		resetR0R1AndDelay		// reset r0, r1, and delay the clock
+	mov		r0, #50000			
 	bl		delayMicroseconds
 	mov		r0, #30000
 	bl		delayMicroseconds
 	
 	// restart selected:
 	cmp		r6, #1
-	bleq	InitGame
+	bleq		InitGame
 	beq		GameLoop
 	
 	// quit selected: (need to go back to main menu first)
