@@ -168,7 +168,7 @@ score:
 
 .global lives
 lives:
-.int	5			// number of lives (default=5)
+.int	3			// number of lives (default=3)
 
 .global win
 win:
