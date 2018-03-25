@@ -301,13 +301,32 @@ changeDirection:
 	teq		r6, #3			// 3=SE, 4=SW
 	subeq		r6, #1			// If SE, set to NE
 	subne		r6, #3			// If SW, set to NW
+	
+	bl		CheckStickyPaddle		// if valuepack2 is enabled, catch the ball
+	
 	mov		r0, r6
 	mov		r1, #1			// set ball was hit flag
 	
 endCP:
-	
-	
 	pop		{r4-r8, pc}
+
+@
+@ If valuepack2 is enabled, turn off the ball's active flag
+@
+CheckStickyPaddle:
+	push	{r4-r8, lr}
+	
+	ldr		r0, =value_pack2
+	ldr		r1, [r0, #12]
+	teq		r1, #1
+	bne		doneCSP
+	
+	ldr		r0, =ball_position
+	mov		r1, #0
+	str		r1, [r0, #16]		// disable the ball's active flag
+	
+doneCSP:
+	pop		{r4-r8, pc} 
 
 @ Update the ball's angle
 @   r0 - angle flag

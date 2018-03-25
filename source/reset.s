@@ -5,12 +5,14 @@
 resetObjectsDefault:
 	push	{r4-r5, lr}
 	
+	// reset the paddle:
 	ldr		r4, =paddle_position
 	mov		r5, #864
 	str		r5, [r4]
 	mov		r5, #700
 	str		r5, [r4, #4]
 	
+	// reset the ball:
 	ldr		r4, =ball_position
 	mov		r5, #880
 	str		r5, [r4]
@@ -23,6 +25,31 @@ resetObjectsDefault:
 	mov		r5, #0
 	str		r5, [r4, #16]
 	
+	// reset the valuepacks:
+	ldr		r4, =value_pack1
+	mov		r5, #6
+	str		r5, [r4]
+	mov		r5, #9
+	str		r5, [r4, #4]
+	b		zeroes	
+
+resetVP2:
+	ldr		r4, =value_pack2
+	mov		r5, #6
+	str		r5, [r4]
+	mov		r5, #5
+	str		r5, [r4, #4]
+	b		doneReset
+	
+zeroes:	
+	mov		r5, #0
+	str		r5, [r4, #8]
+	str		r5, [r4, #12]
+	str		r5, [r4, #16]
+	str		r5, [r4, #20]
+	b		resetVP2
+
+doneReset:	
 	pop		{r4-r5, pc}
 
 

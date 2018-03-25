@@ -87,13 +87,27 @@ aPressed:
 	mov		r0, #30000
 	bl		delayMicroseconds
 	
+	// restart selected:
 	cmp		r6, #1
 	bleq	InitGame
 	beq		GameLoop
-	//when quit need to go back to main menu first
+	
+	// quit selected: (need to go back to main menu first)
+	bl		ResetLivesAndScore
 	bne		main
+
+@
+@ Restore lives & score to defaults
+@
+ResetLivesAndScore:
+	ldr		r0, =lives
+	mov		r1, #3
+	str		r1, [r0]		// reset lives
 	
-	
+	ldr		r0, =score
+	mov		r1, #0
+	str		r1, [r0]		// reset score
+	bx		lr
 		
 @ Data section
 .section .data
@@ -142,7 +156,7 @@ ball_position:
 .int	880			// grid x origin + 256
 .int	667			// grid x origin + 512
 .int	0			// angle (0=45 degrees, 1=60 degrees)
-.int	2			// direction (1-4: 1=NW, 2=NE, 3=SE, 4=SW)
+.int	1			// direction (1-4: 1=NW, 2=NE, 3=SE, 4=SW)
 .int	0			// ball is active flag
 
 .global score
