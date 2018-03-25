@@ -492,11 +492,12 @@ updatePack:
 	
 	mov		r0, #828
 	add		r1, #21
-	mov		r2, r4
 	cmp		r1, r0
 	bls		noReset
 	bl		InitDrawTile
+	mov		r2, r4
 	bl		ClearVPS
+	mov		r2, r4
 	bl		ResetVPS
 	
 noReset:	

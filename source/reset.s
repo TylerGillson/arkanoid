@@ -94,5 +94,6 @@ ResetVPS:
 	str		r1, [r0, #12]
 	str		r1, [r0, #16]
 	str		r1, [r0, #20]
+VPRESET:	
 	bx		lr
 	
