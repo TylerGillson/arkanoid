@@ -44,7 +44,7 @@ ResetValuepacks:
 
 resetVP2:
 	ldr		r4, =value_pack2
-	mov		r5, #6
+	mov		r5, #4
 	str		r5, [r4]
 	mov		r5, #5
 	str		r5, [r4, #4]

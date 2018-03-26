@@ -475,6 +475,7 @@ CheckBottomBoundary:
 	bl		InitDrawTile
 	bl		ClearBallBottom
 	bl		ClearPaddle
+	bl		ClearValuepacks
 	bl		resetObjectsDefault
 	
 endCheckBottomBoundary:
