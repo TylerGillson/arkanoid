@@ -9,19 +9,26 @@ Update:
 	mov		r4, r0
 	mov		r5, r1
 
+	ldr		r6, =value_pack2
+	ldr		r7, [r6, #12]
+	teq		r7, #1
+	beq		movePaddle		// skip the "ball active check" if sticky paddle enabled
+
 	ldr		r6, =ball_position
 	ldr		r7, [r6, #16]	
 	teq		r7, #1
 	bne		skipPaddle		// don't move the paddle if the ball isn't active
-	
-	tst		r0, #(1<<4)		// mask for RIGHT
+
+movePaddle:	
+	tst		r4, #(1<<4)		// mask for RIGHT
 	moveq		r1, #1			// set moving RIGHT flag
+	moveq		r0, r4
 	bleq		UpdatePaddle
 	beq		postUser
 	
-	tst		r0, #(1<<5)		// mask for LEFT
+	tst		r4, #(1<<5)		// mask for LEFT
 	moveq		r1, #0			// clear moving RIGHT flag (b/c moving LEFT)
-	moveq		r8, #1		// paddle moved flag
+	moveq		r0, r4
 	bleq		UpdatePaddle
 	
 skipPaddle:
@@ -33,6 +40,8 @@ postUser:
 	bl		CheckPaddleValuepacks
 	
 // activate the game by pressing B:
+	ldr		r6, =ball_position
+	ldr		r7, [r6, #16]
 	teq		r7, #1			// check ball active flag
 	bne		bCheck
 	bl		CheckCollision		// update position if 1
@@ -352,7 +361,7 @@ UpdateAngle:
 @  r1 - moving RIGHT flag
 @
 UpdatePaddle:
-	push		{r4-r7, lr}
+	push		{r4-r9, lr}
 	
 	ldr		r4, =paddle_position
 	ldr		r5, [r4]		// x coord
@@ -361,30 +370,79 @@ UpdatePaddle:
 	
 	tst		r0, #(1<<3)		// mask for A
 	addeq		r6, #2			// accelerate paddle if A is pressed
-
+	
+	mov		r7, r1
+	mov		r8, r5			// save r1/r5/r6
+	mov		r9, r6		
+	
+	ldr		r4, =value_pack2
+	ldr		r5, [r4, #12]
+	teq		r5, #1
+	moveq	r0, r6
+	bleq	UpdateStickyPaddleBall
+	
 // Don't let the paddle exit the play area!	
-	cmp		r1, #1			// check moving RIGHT flag
+	cmp		r7, #1			// check moving RIGHT flag
 	beq		moveRight
 	
-	sub		r0, r5, r6		// moving left (accounting for speed)
+	sub		r0, r8, r9		// moving left (accounting for speed)
 	cmp		r0, #672		// check left boundary
 	bls		skipMove
-	sub		r5, r6			// move left
+	sub		r8, r9			// move left
 	b		storeMove
 	
 moveRight:
-	mov		r7, r5
+	mov		r7, r8
 	add		r7, #96
-	add		r7, r6			// account for speed!
+	add		r7, r9			// account for speed!
 	cmp		r7, #1152		// check right boundary
 	bhi		skipMove
-	add		r5, r6			// move right
+	add		r8, r9			// move right
 
 storeMove:
-	str		r5, [r4]
+	ldr		r4, =paddle_position
+	str		r8, [r4]
 skipMove:
-	pop		{r4-r7, pc}
+	pop		{r4-r9, pc}
+
+@ Update the ball's x-coordinate when valuepack2 is enabled
+@
+@  r0 - paddle update amount
+@  r1 - moving RIGHT flag
+@
+UpdateStickyPaddleBall:
+	push		{r4-r8, lr}
 	
+	ldr		r4, =ball_position
+	ldr		r5, [r4]
+	ldr		r6, [r4, #4]
+	add		r6, #36
+	
+	ldr		r8, =paddle_position
+	ldr		r7, [r8, #4]
+
+CHECK:	
+	cmp		r7, r6
+	bhi		skipUSPB
+
+CHECK2:	
+	teq		r1, #1
+	addeq		r5, r0
+	subne		r5, r0
+	bne		checkBallLeft
+	
+	cmp		r5, #1120 
+	bhi		skipUSPB
+	
+checkBallLeft:	
+	cmp		r5, #672
+	ble		skipUSPB
+	
+	str		r5, [r4]
+
+skipUSPB:	
+	pop		{r4-r8, pc}
+
 @ 
 @ Update the x & y coordinates of the ball based on its current direction
 @
