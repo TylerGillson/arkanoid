@@ -6,7 +6,7 @@ ClearObjects:
 	push		{r4-r10, lr}
 	
 	bl		InitDrawTile
-	bl		ClearBall			
+	bl		ClearBall
 	bl		ClearPaddle		
 	bl		ClearValuepacks
 	

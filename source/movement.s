@@ -21,8 +21,9 @@ Update:
 	
 	tst		r0, #(1<<5)		// mask for LEFT
 	moveq		r1, #0			// clear moving RIGHT flag (b/c moving LEFT)
+	moveq		r8, #1		// paddle moved flag
 	bleq		UpdatePaddle
-
+	
 skipPaddle:
 	teq		r1, #9
 	beq		PauseScreen		// (game.s)
@@ -42,7 +43,7 @@ bCheck:
 	moveq		r7, #1			
 	streq		r7, [r6, #16]		// set ball active flag
 
-done:	
+done:
 	pop		{r4-r8, pc}
 
 @
