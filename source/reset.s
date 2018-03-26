@@ -33,22 +33,23 @@ resetObjectsDefault:
 @ Reset the valuepacks
 @
 ResetValuepacks:
-	push		{r4-r5, lr}
+	push		{r4-r6, lr}
 
 	ldr		r4, =value_pack1
-	mov		r5, #6
-	str		r5, [r4]
-	mov		r5, #9
-	str		r5, [r4, #4]
-	b		zeroes	
-
-resetVP2:
-	ldr		r4, =value_pack2
 	mov		r5, #4
 	str		r5, [r4]
 	mov		r5, #5
 	str		r5, [r4, #4]
-	b		doneResetVPS
+	mov		r6, #1
+	b		zeroes	
+
+resetVP2:
+	ldr		r4, =value_pack2
+	mov		r5, #6
+	str		r5, [r4]
+	mov		r5, #9
+	str		r5, [r4, #4]
+	mov		r6, #2
 	
 zeroes:	
 	mov		r5, #0
@@ -56,27 +57,23 @@ zeroes:
 	str		r5, [r4, #12]
 	str		r5, [r4, #16]
 	str		r5, [r4, #20]
-	b		resetVP2
+	
+	teq		r6, #1
+	beq		resetVP2
 
 doneResetVPS:	
-	pop		{r4-r5, pc}
+	pop		{r4-r6, pc}
 
 @
 @ Reset r0, r1, and delay the clock
 @
-.global resetR0R1AndDelay
-resetR0R1AndDelay:
+.global resetArgsAndDelay
+resetArgsAndDelay:
 	push	{lr}
 	
-	mov		r0, #0
-	mov		r1, #0
-	
-	mov		r0, #50000
+	mov		r0, #131072
 	bl		delayMicroseconds
 	
-	mov		r0, #50000
-	bl		delayMicroseconds
-
 	pop		{pc}
 	
 @
@@ -97,6 +94,5 @@ ResetVPS:
 	str		r1, [r0, #12]
 	str		r1, [r0, #16]
 	str		r1, [r0, #20]
-VPRESET:	
 	bx		lr
 	

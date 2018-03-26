@@ -37,72 +37,10 @@ GameLoop:
 
 	b		GameLoop
 
-.global PauseScreen
-PauseScreen:
-	//draw the pause screen, then give user some time to select
-	bl		DrawPauseScreen				
-	mov		r0,	 #20000
-	bl		delayMicroseconds
-	b		pauseSelectRestart		
-
-pauseWaitLoop:
-	bl		ReadSNES			
-	
-// if "start" button was pressed, continue game
-continueGame:
-	tst		r0, #(1<<8)
-	bleq		InitGame				// draw game screen again
-	beq		GameLoop				// then begin the main game loop (main.s)
-	
-// if "A" button was pressed(user selected a option on the pause menu), branch to aPressed
-// if "A" button was not pressed, check if "Up" or "Down" was pressed
-pauseInput:
-	teq		r1, #4
-	bne		pauseNav
-	beq		aPressed
-		
-pauseNav:
-	teq		r1, #7					// if "Down" was pressed
-	beq		pauseSelectQuit				// then user selected quit option
-	teq		r1, #8					// if "Up" was pressed 
-	beq		pauseSelectRestart			// then user selected restart option
-	b		pauseWaitLoop				// else wait for input again
-	
-// user move selection border to Restart, r6 = 1 indicates restart option is being selected
-pauseSelectRestart:
-	bl		DrawPauseScreen
-	bl		DrawPauseSelection1
-	mov		r6, #1
-	b		pauseWaitLoop
-	
-// user move selection border to Quit, r6 = 0 indicates quit option is being selected
-pauseSelectQuit:
-	bl		DrawPauseScreen
-	bl		DrawPauseSelection2
-	mov		r6, #0
-	b		pauseWaitLoop
-	
-// player selected an option, branch to restart the game or main menu accordingly 
-aPressed:	
-	bl		resetObjectsDefault		// reset ball and paddle
-	bl		resetR0R1AndDelay		// reset r0, r1, and delay the clock
-	mov		r0, #50000			
-	bl		delayMicroseconds
-	mov		r0, #30000
-	bl		delayMicroseconds
-	
-	// restart selected:
-	cmp		r6, #1
-	bleq		InitGame
-	beq		GameLoop
-	
-	// quit selected: (need to go back to main menu first)
-	bl		ResetLivesAndScore
-	bne		main
-
 @
 @ Restore lives & score to defaults
 @
+.global ResetLivesAndScore
 ResetLivesAndScore:
 	ldr		r0, =lives
 	mov		r1, #3
@@ -193,8 +131,8 @@ lose:
 
 .global value_pack1
 value_pack1:
-.int	6			// row index
-.int	9			// column index
+.int	4			// row index
+.int	5			// column index
 .int	0			// falling? (0=no, 1=yes)
 .int	0			// effect enabled? (0=no, 1=yes)
 .int	0			// x
@@ -202,8 +140,8 @@ value_pack1:
 
 .global value_pack2
 value_pack2:
-.int	4			// row index
-.int	5			// column index
+.int	6			// row index
+.int	9			// column index
 .int	0			// falling? (0=no, 1=yes)
 .int	0			// effect enabled? (0=no, 1=yes)
 .int	0			// x

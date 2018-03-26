@@ -164,7 +164,7 @@ winOrLoseBackToMain:
 		
 waitToGBMain:	
 	bl		resetObjectsDefault
-	bl		resetR0R1AndDelay
+	bl		resetArgsAndDelay
 										// loop to continue reading input
 	bl		ReadSNES					// until player press any button 
 										// to go back to main menu screen

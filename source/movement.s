@@ -25,7 +25,7 @@ Update:
 
 skipPaddle:
 	teq		r1, #9
-	beq		PauseScreen
+	beq		PauseScreen		// (game.s)
 	
 postUser:
 	bl		UpdateValuepacks

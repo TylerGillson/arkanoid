@@ -5,15 +5,9 @@ HomeLoop:
 	push		{r4, lr}
 	menu_option	.req	r4	
 
-	bl		resetR0R1AndDelay
 	b		selectStart
 	
 waitLoop:
-	bl		resetR0R1AndDelay
-	mov		r0, #50000
-	bl		delayMicroseconds
-	mov		r0, #50000
-	bl		delayMicroseconds
 	mov		r1, #0
 	bl		ReadSNES				// See snes_driver.s
 
@@ -131,3 +125,80 @@ red_row:
 QuitGame:
 	bl		DrawBlackScreen
 	b		QuitGame
+
+@
+@ Pause menu logic
+@
+.global PauseScreen
+PauseScreen:
+	//draw the pause screen, then give user some time to select
+	bl		DrawPauseScreen				
+	mov		r0,	 #131072
+	bl		delayMicroseconds
+	b		pauseSelectRestart		
+
+pauseWaitLoop:
+	bl		ReadSNES			
+	
+// if "start" button was pressed, continue game
+continueGame:
+	tst		r0, #(1<<8)
+	bleq		InitGame				// draw game screen again
+	beq		GameLoop				// then begin the main game loop (main.s)
+	
+// if "A" button was pressed(user selected a option on the pause menu), branch to aPressed
+// if "A" button was not pressed, check if "Up" or "Down" was pressed
+pauseInput:
+	teq		r1, #4
+	bne		pauseNav
+	beq		aPressed
+		
+pauseNav:
+	teq		r1, #7					// if "Down" was pressed
+	beq		pauseSelectQuit				// then user selected quit option
+	teq		r1, #8					// if "Up" was pressed 
+	beq		pauseSelectRestart			// then user selected restart option
+	b		pauseWaitLoop				// else wait for input again
+	
+// user move selection border to Restart, r6 = 1 indicates restart option is being selected
+pauseSelectRestart:
+	bl		DrawPauseScreen
+	bl		DrawPauseSelection1
+	ldr		r0, =selection
+	mov		r1, #1
+	str		r1, [r0]
+	b		pauseWaitLoop
+	
+// user move selection border to Quit, r6 = 0 indicates quit option is being selected
+pauseSelectQuit:
+	bl		DrawPauseScreen
+	bl		DrawPauseSelection2
+	ldr		r0, =selection
+	mov		r1, #2
+	str		r1, [r0]
+	b		pauseWaitLoop
+	
+// player selected an option, branch to restart the game or main menu accordingly 
+aPressed:	
+	bl		resetObjectsDefault		// reset ball and paddle
+	bl		resetArgsAndDelay		// reset r0, r1, and delay the clock
+	
+	// restart selected:
+	ldr		r0, =selection
+	ldr		r1, [r0]
+	teq		r1, #1
+	bleq		InitGame
+	beq		GameLoop
+	
+	// quit selected: (need to go back to main menu first)
+	bl		ResetLivesAndScore
+	bl		resetArgsAndDelay		// reset r0, r1, and delay the clock
+	bne		main
+
+@ Data section
+.section .data
+
+.align
+
+selection:			// indicates what option is selected
+.int	0
