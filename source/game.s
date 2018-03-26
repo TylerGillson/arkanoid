@@ -138,10 +138,19 @@ PauseScreen:
 	b		pauseSelectRestart		
 
 pauseWaitLoop:
-	bl		ReadSNES			
+	bl		ReadSNES
 	
 // if "start" button was pressed, continue game
 continueGame:
+	ldr		r2, =selection
+	str		r0, [r2]
+	str		r1, [r2, #4]
+	mov		r0,	 #131072
+	bl		delayMicroseconds
+	ldr		r2, =selection
+	ldr		r0, [r2]
+	ldr		r1, [r2, #4]
+			
 	tst		r0, #(1<<8)
 	bleq		InitGame				// draw game screen again
 	beq		GameLoop				// then begin the main game loop (main.s)
@@ -166,7 +175,7 @@ pauseSelectRestart:
 	bl		DrawPauseSelection1
 	ldr		r0, =selection
 	mov		r1, #1
-	str		r1, [r0]
+	str		r1, [r0, #8]
 	b		pauseWaitLoop
 	
 // user move selection border to Quit, r6 = 0 indicates quit option is being selected
@@ -175,7 +184,7 @@ pauseSelectQuit:
 	bl		DrawPauseSelection2
 	ldr		r0, =selection
 	mov		r1, #2
-	str		r1, [r0]
+	str		r1, [r0, #8]
 	b		pauseWaitLoop
 	
 // player selected an option, branch to restart the game or main menu accordingly 
@@ -185,15 +194,17 @@ aPressed:
 	
 	// restart selected:
 	ldr		r0, =selection
-	ldr		r1, [r0]
-	teq		r1, #1
-	bleq		InitGame
-	beq		GameLoop
+	ldr		r1, [r0, #8]
+	teq		r1, #2
+	beq		quitSelected
+	bl		InitGame
+	b		GameLoop
 	
 	// quit selected: (need to go back to main menu first)
+quitSelected:	
 	bl		ResetLivesAndScore
 	bl		resetArgsAndDelay		// reset r0, r1, and delay the clock
-	bne		main
+	b		main
 
 @ Data section
 .section .data
@@ -201,4 +212,6 @@ aPressed:
 .align
 
 selection:			// indicates what option is selected
-.int	0
+.int	0			// SNES button register
+.int	0			// SNES button code
+.int	0			// selection flag
