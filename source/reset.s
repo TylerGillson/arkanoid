@@ -84,7 +84,8 @@ ResetVPS:
 	teq		r2, #2
 	ldreq	r0, =value_pack2
 	ldrne	r0, =value_pack1
-	mov		r1, #6
+	moveq		r1, #4
+	movne		r1, #6
 	str		r1, [r0]
 	moveq		r1, #5
 	movne		r1, #9

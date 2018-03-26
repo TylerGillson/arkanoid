@@ -1,4 +1,6 @@
-
+@
+@ ???
+@
 .global setWinFlag
 setWinFlag:
 	push 	{r4-r7, lr}
@@ -35,12 +37,13 @@ setWinTo0:
 	mov		r5, #0
 	str		r5, [r4]
 		
-	
 setWinFlagEnd:	
 	pop		{r4-r7, pc}
 
 
-
+@
+@ ???
+@
 .global setLoseFlag
 setLoseFlag:
 	push	{r4, r5, r6, lr}
@@ -54,10 +57,6 @@ setLoseFlag:
 	streq	r6, [r4]
 	
 	pop		{r4, r5, r6, pc}
-
-
-
-
 
 @
 @ Draw win or lose screen accordingly, if both = 0, continue game loop
@@ -102,7 +101,6 @@ drawWinOrLose:
 	
 	pop		{r4-r6, pc}
 
-
 @
 @ Draw winning screen
 @	
@@ -123,12 +121,8 @@ drawWinScreen:
 	
 	bl 		DrawImage			
 	
-	
 	pop		{r4, r5, pc}
 	
-
-
-
 @
 @ Draw losing screen
 @
@@ -156,22 +150,12 @@ drawLoseScreen:
 @ If player press any button, return to the main menu
 @
 winOrLoseBackToMain:
-	
-	mov		r0, #5000					// delay 
-	bl		delayMicroseconds
-	mov		r1, #0						// clear r1 and r0 
-	mov		r0, #0
-		
-waitToGBMain:	
-	bl		resetObjectsDefault
-	bl		resetArgsAndDelay
-										// loop to continue reading input
-	bl		ReadSNES					// until player press any button 
-										// to go back to main menu screen
+	bl		ReadSNES					// until player press any button to go back to main menu screen
 	teq		r1, #0						// if r1 != 0 (which indicates at least one button was pressed)
-	moveq	r1, #0
-	bne		HomeLoop						// then branch to main
-	b		waitToGBMain							
+	blne	resetObjectsDefault
+	blne	resetArgsAndDelay
+	bne		HomeLoop					// then branch to main
+	b		winOrLoseBackToMain			// loop to continue reading input							
 
 	
 

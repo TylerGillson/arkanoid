@@ -287,7 +287,7 @@ CheckPaddle:
 	cmp		r5, r7
 	bls		notFarRight
 	
-	mov		r0, #1			// 60 degrees
+	mov		r0, #0			// 60 degrees
 	bl		UpdateAngle
 	b		changeDirection
 
@@ -296,12 +296,12 @@ notFarRight:
 	cmp		r5, r7			// is the ball hitting the far left side? 
 	bhi		inside
 	
-	mov		r0, #1			// 60 degrees
+	mov		r0, #0			// 60 degrees
 	bl		UpdateAngle
 	b		changeDirection
 
 inside:	
-	mov		r0, #0			// 45 degrees
+	mov		r0, #1			// 45 degrees
 	bl		UpdateAngle
 
 changeDirection:
