@@ -60,6 +60,14 @@ ClearBall:
 	bl		CalcTile
 //UU2:
 	bl		DrawTile
+	
+	mov		r1, r6
+	add		r1, #48
+	mov		r2, r7
+	add		r2, #16
+	bl		CalcTile
+//RIGHT:
+	bl		DrawTile
 
 	mov		r1, r6
 	add		r1, #32

@@ -153,7 +153,9 @@ hitBrick:
 	moveq		r3, #0			// turn white blocks into background tiles
 	subhi		r3, r1, #1		// demote non-white blocks
 	strb		r3, [r4, r8]		// update block tile in memory
-
+	
+	mov		r8, r3			// save block type
+	
 // Draw new tile:
 	bl		InitDrawTile
 	mov		r1, r6
@@ -164,11 +166,14 @@ hitBrick:
 	bl		DrawTile
 	
 // Check for valuepack:
+	teq		r8, #0
+	bne		AddScore		// Only check for valuepack if the brick is broken
+	
 	mov		r0, r6			// tile row idx
 	mov		r1, r7			// tile col idx
 	bl		CheckValuepack
 
-// Update score:
+AddScore:
 	mov		r0, #10			// 10 points for breaking a brick
 	bl		UpdateScore
 	//**********************
@@ -209,24 +214,76 @@ northCheck:
 	bne		northwest
 
 northeast:					// If direction=2 (NE),
+	ldr		r0, =bottom_right
+	ldr		r1, [r0, #4]		// BR tile type
+	cmp		r1, #1
+	bne		NECEIL
+	sub		r5, #1			// NE --> NW (hitting the wall)
+	b		store
+
+NECEIL:	
 	ldr		r0, =top_right
-	ldr		r1, =bottom_right
+	ldr		r1, =top_left
 	ldr		r2, [r0, #4]		// TR tile type
-	ldr		r3, [r1, #4]		// BR tile type
+	ldr		r3, [r1, #4]		// TL tile type
 	
-	cmp		r3, #1			// Is the bottom right corner on a wall?
+	cmp		r3, #1			// Are the top corners on a wall?
+	bne		NETR
+	cmp		r2, #1
+	bne		NETR
+	add		r5, #1			// NE --> SE (hitting ceiling)
+	b		store
+
+NETR:	
+	ldr		r0, =ball_position
+	ldr		r1, [r0]
+	add		r1, #36
+	ldr		r2, [r0, #4]
+	add		r2, #16
+	bl		CalcTile
+	bl		GetIndex
+	ldr		r1, =game_map
+	ldrb	r2, [r1, r0]	// get right-side-middle tile
+	
+	teq		r2, #1
 	subeq		r5, #1			// NE --> NW (hitting the wall)
 	addne		r5, #1			// NE --> SE (hitting a brick/ceiling)
 	b		store
 	
 northwest:					// If direction=1 (NW),
-	ldr		r0, =top_left
-	ldr		r1, =bottom_left
-	ldr		r2, [r0, #4]		// TL tile type
-	ldr		r3, [r1, #4]		// BL tile type
+	ldr		r0, =bottom_left
+	ldr		r1, [r0, #4]		// BL tile type
+	cmp		r1, #1
+	bne		NWCEIL
+	add		r5, #1			// NW --> NE (hitting the wall)
+	b		store
+
+NWCEIL:	
+	ldr		r0, =top_right
+	ldr		r1, =top_left
+	ldr		r2, [r0, #4]		// TR tile type
+	ldr		r3, [r1, #4]		// TL tile type
 	
-	cmp		r3, #1			// Is the bottom left corner on a wall?
-	addeq		r5, #1			// NW --> NE (hitting the wall)
+	cmp		r3, #1			// Are the top corners on a wall?
+	bne		NWTL
+	cmp		r2, #1
+	bne		NWTL
+	add		r5, #3			// NW --> SW (hitting ceiling)
+	b		store
+
+NWTL:	
+	ldr		r0, =ball_position
+	ldr		r1, [r0]
+	sub		r1, #4
+	ldr		r2, [r0, #4]
+	add		r2, #16
+	bl		CalcTile
+	bl		GetIndex
+	ldr		r1, =game_map
+	ldrb	r2, [r1, r0]	// get left-side-middle tile
+	
+	teq		r2, #1
+	subeq		r5, #1			// NW --> NE (hitting the wall)
 	addne		r5, #3			// NW --> SW (hitting a brick/ceiling)
 
 store:
@@ -421,11 +478,14 @@ UpdateStickyPaddleBall:
 	ldr		r8, =paddle_position
 	ldr		r7, [r8, #4]
 
-CHECK:	
 	cmp		r7, r6
-	bhi		skipUSPB
+	bhi		skipUSPB		// Don't update the ball if it is above the paddle!
 
-CHECK2:	
+	ldr		r6, [r4, #4]	// reset ball y
+	add		r7, #21			// bottom of the paddle
+	cmp		r6, r7
+	bhi		skipUSPB		// Don't update the ball if it is below the paddle!
+	
 	teq		r1, #1
 	addeq		r5, r0
 	subne		r5, r0
