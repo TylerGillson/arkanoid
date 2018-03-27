@@ -44,18 +44,18 @@ DrawTile:
 .global DrawBottomBar
 DrawBottomBar:
 	push	{r4, r5, lr}
-	ldr		r0, =score_bar
-	mov		r1, #624
-	mov		r2, #828
+	ldr		r0, =score_bar		//address of image
+	mov		r1, #624		//x
+	mov		r2, #828		//y
 	
 	ldr		r4, =width
-	mov		r5, #576
+	mov		r5, #576		//width of image
 	str		r5, [r4]
 	
 	ldr		r4, =height
-	mov		r5, #45
+	mov		r5, #45			//height of image
 	str		r5, [r4]
-	bl		DrawImage
+	bl		DrawImage		//branch to DrawImage method
 	pop		{r4, r5, pc}
 
 @
@@ -64,35 +64,38 @@ DrawBottomBar:
 .global overwrite_Lives
 overwrite_Lives:
 	push	{r4, r5, lr}
-	ldr		r0, =overwriteLives
-	mov		r1, #760
-	mov		r2, #828
+	ldr		r0, =overwriteLives	//address of image
+	mov		r1, #760		//x
+	mov		r2, #828		//y
 	
 	ldr		r4, =width
-	mov		r5, #10
+	mov		r5, #10			//width of image
 	str		r5, [r4]
 	
 	ldr		r4, =height
-	mov		r5, #45
+	mov		r5, #45			//height of image
 	str		r5, [r4]
-	bl		DrawImage
+	bl		DrawImage		//branch to DrawImage method
 	pop		{r4, r5, pc}
-	
+
+@
+@ Draw a piece of black image to cover the previous score.
+@
 .global overwrite_Score
 overwrite_Score:
 	push	{r4, r5, lr}
-	ldr		r0, =overwriteScore
-	mov		r1, #1060
-	mov		r2, #828
+	ldr		r0, =overwriteScore	//address of image
+	mov		r1, #1060		//x
+	mov		r2, #828		//y
 	
 	ldr		r4, =width
-	mov		r5, #30
+	mov		r5, #30			//width of image
 	str		r5, [r4]
 	
-	ldr		r4, =height
-	mov		r5, #45
+	ldr		r4, =height	
+	mov		r5, #45			//height of image
 	str		r5, [r4]
-	bl		DrawImage
+	bl		DrawImage		//branch to DrawImage method
 	pop		{r4, r5, pc}
 
 @ Get an index into the game map based on col & row indices
