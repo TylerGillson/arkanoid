@@ -115,17 +115,17 @@ red_row:
 	bl		drawLives			// (bottomLabels.s)
 	bl		drawScore			// (bottomLabels.s)	
 	bl		updateLives			// print original lives count
-	ldr		r9,	=score
-	ldr		r0,	[r9]
-	ldr		r1,	=scoreString
-	bl		scoreDemo
+	ldr		r9,	=score			//load address of score
+	ldr		r0,	[r9]			
+	ldr		r1,	=scoreString		//load address of string for storage
+	bl		scoreDemo			//branch to method that converts int to ascii
 	//clear the asciz score string before printing
 	ldr		r0,	=scoreString
 	ldr		r1,	='0'
 	strb		r1, [r0]	// clear the next char in the string
 	strb		r1, [r0, #1]	// clear the next char in the string
 	strb		r1, [r0, #2]	// clear the next char in the string	
-	bl		printScore	
+	bl		printScore			//print the contents of the score string of ascii chars
 	
 	pop		{r4-r6, pc}
 // END INIT GAME
