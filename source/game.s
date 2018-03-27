@@ -9,6 +9,7 @@ HomeLoop:
 	
 waitLoop:
 	mov		r1, #0
+	bl		resetArgsAndDelay
 	bl		ReadSNES				// See snes_driver.s
 
 input:	
