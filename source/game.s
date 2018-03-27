@@ -115,18 +115,16 @@ red_row:
 	bl		drawLives			// (bottomLabels.s)
 	bl		drawScore			// (bottomLabels.s)	
 	bl		updateLives			// print original lives count
+	ldr		r9,	=score
+	ldr		r0,	[r9]
+	ldr		r1,	=scoreString
+	bl		scoreDemo
 	//clear the asciz score string before printing
 	ldr		r0,	=scoreString
 	ldr		r1,	='0'
 	strb		r1, [r0]	// clear the next char in the string
 	strb		r1, [r0, #1]	// clear the next char in the string
-	strb		r1, [r0, #2]	// clear the next char in the string
-	ldr		r9,	=score
-	ldr		r0,	[r9]
-	ldr		r1,	=scoreString
-	bl		scoreDemo
-	ldr		r0,	=scoreString
-	bl		printScore	
+	strb		r1, [r0, #2]	// clear the next char in the string	bl		printScore	
 	
 	pop		{r4-r6, pc}
 // END INIT GAME
