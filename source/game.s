@@ -124,7 +124,8 @@ red_row:
 	ldr		r1,	='0'
 	strb		r1, [r0]	// clear the next char in the string
 	strb		r1, [r0, #1]	// clear the next char in the string
-	strb		r1, [r0, #2]	// clear the next char in the string	bl		printScore	
+	strb		r1, [r0, #2]	// clear the next char in the string	
+	bl		printScore	
 	
 	pop		{r4-r6, pc}
 // END INIT GAME
