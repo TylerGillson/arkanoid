@@ -167,3 +167,7 @@ bottom_left:
 bottom_right:
 .int	0
 .int	0
+
+.global	scoreString
+scoreString:
+.asciz	"0"
