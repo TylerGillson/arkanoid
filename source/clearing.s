@@ -26,70 +26,70 @@ ClearBall:
 	mov		r7, r2			// save ball y
 	
 	bl		CalcTile
-//TOPLEFT:
 	bl		DrawTile
+TOPLEFT:
 
 	mov		r1, r6
 	sub		r1, #16
 	mov		r2, r7
 	add		r2, #8
 	bl		CalcTile
-//LL1:
 	bl		DrawTile
+LL1:
 	
 	mov		r1, r6
 	sub		r1, #16
 	mov		r2, r7
 	add		r2, #24
 	bl		CalcTile
-//LL2:
 	bl		DrawTile
+LL2:
 
 	mov		r1, r6
 	add		r1, #8
 	mov		r2, r7
 	sub		r2, #16
 	bl		CalcTile
-//UU1:
 	bl		DrawTile
+UU1:
 	
 	mov		r1, r6
 	add		r1, #24
 	mov		r2, r7
 	sub		r2, #16
 	bl		CalcTile
-//UU2:
 	bl		DrawTile
+UU2:
 	
 	mov		r1, r6
 	add		r1, #48
 	mov		r2, r7
 	add		r2, #16
 	bl		CalcTile
-//RIGHT:
 	bl		DrawTile
+RIGHT:
 
 	mov		r1, r6
 	add		r1, #32
 	mov		r2, r7
 	bl		CalcTile
-//TOPRIGHT:
 	bl		DrawTile
+TOPRIGHT:
 
 	mov		r1, r6
 	add		r1, #32
 	mov		r2, r7
 	add		r2, #32
 	bl		CalcTile
-//BOTTOMRIGHT:
 	bl		DrawTile
+BOTTOMRIGHT:
 
 	mov		r1, r6
 	mov		r2, r7
 	add		r2, #32
 	bl		CalcTile
-//BOTTOMLEFT:
 	bl		DrawTile
+BOTTOMLEFT:
 
 // ACCOUNT FOR BALL SPEED:
 	ldr		r0, =value_pack1
@@ -108,16 +108,16 @@ ClearBall:
 	mov		r2, r7
 	add		r2, #40
 	bl		CalcTile
-DD1:
 	bl		DrawTile
+DD1:
 
 	mov		r1, r6
 	add		r1, #24
 	mov		r2, r7
 	add		r2, #40
 	bl		CalcTile
-DD2:
 	bl		DrawTile
+DD2:
 	
 doneClearBall:
 	pop		{r4-r10, pc}
@@ -127,7 +127,7 @@ doneClearBall:
 @
 .global ClearPaddle
 ClearPaddle:
-	push		{r4-r7, lr}
+	push		{r4-r9, lr}
 	
 	ldr		r4, =paddle_position
 	ldr		r1, [r4]		// paddle x
@@ -136,27 +136,31 @@ ClearPaddle:
 	mov		r7, r2			// save paddle y
 	
 	bl		CalcTile
-	bl		DrawTile		// TOP LEFT
+	bl		DrawTile
+PTOPLEFT:
 	
 	mov		r1, r6
 	sub		r1, #10
 	mov		r2, r7
 	bl		CalcTile
-	bl		DrawTile		// LEFT
+	bl		DrawTile
+PLEFT:
 	
 	mov		r1, r6
 	add		r1, #48
 	mov		r2, r7
 	bl		CalcTile
-	bl		DrawTile		// CENTRE
+	bl		DrawTile
+PCENTRE:
 	
 	mov		r1, r6
 	add		r1, #100
 	mov		r2, r7
 	bl		CalcTile
-	bl		DrawTile		// TOP RIGHT
+	bl		DrawTile
+PTOPRIGHT:
 
-	pop		{r4-r7, pc}
+	pop		{r4-r9, pc}
 
 @
 @ Clear any valuepacks that are currently falling down the screen.
