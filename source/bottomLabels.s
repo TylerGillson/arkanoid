@@ -108,6 +108,7 @@ drawScore:
 @	r1 = x
 @	r2 = y
 @
+.global drawChar
 drawChar:
 	push		{r4-r9, lr}
 
