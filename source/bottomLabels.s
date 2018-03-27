@@ -1,7 +1,7 @@
 .section .text
 @
-@ Draw the "LIVES:" lable (Bottom of the game screen)
-@
+@ Draw the "LIVES:" label (Bottom of the game screen)
+@ passes r0 (char to be drawn), r1 (x), and r2 (y) to the drawChar method
 .global	drawLives
 drawLives:
 	push 	{lr}
@@ -39,8 +39,9 @@ drawLives:
 
 
 @
-@ Draw the number of lives after "LIVES" lable
-@
+@ Draw the number of lives after "LIVES" label
+@ checks to see if lives remaining is 0, 1, 2, or 3 and r6 will hold the appropriate ascii char
+@ passes r0 (char to be drawn), r1 (x), and r2 (y) to the drawChar method
 .global updateLives
 updateLives:
 	push {r4-r6, lr}
@@ -65,8 +66,8 @@ updateLives:
 	pop {r4-r6, pc}
 
 @
-@ Draw the "SCORE:" lable (Bottom of the game screen)
-@
+@ Draw the "SCORE:" label (Bottom of the game screen)
+@ passes r0 (char to be drawn), r1 (x), and r2 (y) to the drawChar method
 .global drawScore	
 drawScore:
 	push	{lr}
