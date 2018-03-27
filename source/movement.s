@@ -176,9 +176,13 @@ hitBrick:
 AddScore:
 	mov		r0, #10			// 10 points for breaking a brick
 	bl		UpdateScore
-	//**********************
-	//bl		PrintScore
-	//**********************
+	bl		overwrite_Score
+	ldr		r9,	=score
+	ldr		r0,	[r9]
+	ldr		r1,	=scoreString
+	bl		scoreDemo
+	ldr		r0,	=scoreString
+	bl		printScore	
 
 // END BRICK HITTING CODE
 hitWall:
@@ -693,9 +697,13 @@ checkXAxis:
 	
 	mov		r0, #50			// 50 points for getting a value pack
 	bl		UpdateScore
-	//**********************
-	//bl		PrintScore
-	//**********************
+	bl		overwrite_Score
+	ldr		r9,	=score
+	ldr		r0,	[r9]
+	ldr		r1,	=scoreString
+	bl		scoreDemo
+	ldr		r0,	=scoreString
+	bl		printScore	
 	
 doneXAxis:
 	teq		r8, #1
