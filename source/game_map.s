@@ -77,6 +77,23 @@ overwrite_Lives:
 	str		r5, [r4]
 	bl		DrawImage
 	pop		{r4, r5, pc}
+	
+.global overwrite_Score
+overwrite_Score:
+	push	{r4, r5, lr}
+	ldr		r0, =overwriteScore
+	mov		r1, #1060
+	mov		r2, #828
+	
+	ldr		r4, =width
+	mov		r5, #30
+	str		r5, [r4]
+	
+	ldr		r4, =height
+	mov		r5, #45
+	str		r5, [r4]
+	bl		DrawImage
+	pop		{r4, r5, pc}
 
 @ Get an index into the game map based on col & row indices
 @  r0 - row index
