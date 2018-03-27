@@ -82,6 +82,9 @@ drawWinOrLose:
 	ldreq	r4, =lives					// then reset lives to default 5
 	moveq	r5, #3
 	streq	r5, [r4]
+	ldreq	r4, =score					// then reset score to default 0
+	moveq	r5, #0
+	streq	r5, [r4]
 	bleq	drawWinScreen				// draw screen with winning message
 	beq		winOrLoseBackToMain			// if player press any button, return to the main menu
 	
@@ -95,6 +98,9 @@ drawWinOrLose:
 	streq		r5, [r4]
 	ldreq	r4, =lives					// then reset lives to default 5
 	moveq	r5, #3
+	streq	r5, [r4]
+	ldreq	r4, =score					// then reset score to default 0
+	moveq	r5, #0
 	streq	r5, [r4]
 	bleq		drawLoseScreen			// draw screen with losing message
 	beq		winOrLoseBackToMain			// if player press any button, return to the main menu
